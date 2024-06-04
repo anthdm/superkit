@@ -1,0 +1,14 @@
+package errors
+
+import (
+	"example-app/views/layouts"
+)
+
+templ Error400() {
+	@layouts.BaseLayout() {
+		<div class="h-screen w-full flex flex-col justify-center align-middle items-center gap-4">
+			<div class="text-muted-foreground text-5xl font-bold">404</div>
+			<div class="text-lg">The page you are looking for does not exist</div>
+		</div>
+	}
+}

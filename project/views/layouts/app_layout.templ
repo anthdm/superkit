@@ -1,0 +1,12 @@
+package layouts
+
+import "example-app/views/components"
+
+templ App() {
+	@BaseLayout() {
+		@components.Navigation()
+		<div class="max-w-7xl mx-auto">
+			{ children... }
+		</div>
+	}
+}
