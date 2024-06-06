@@ -8,7 +8,7 @@ import (
 	"github.com/anthdm/gothkit/kit/middleware"
 )
 
-// Auth is a view helper function that returns the currency Auth.
+// Auth is a view helper function that returns the current Auth.
 // If Auth is not set a default auth will be returned
 func Auth(ctx context.Context) kit.Auth {
 	value, ok := ctx.Value(kit.AuthKey{}).(kit.Auth)
