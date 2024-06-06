@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"os"
 
 	"github.com/a-h/templ"
 )
@@ -24,15 +25,14 @@ type Auth interface {
 }
 
 var (
-	auth         Auth = defaultAuth{}
-	errorHandler      = func(kit *Kit, err error) {
+	errorHandler = func(kit *Kit, err error) {
 		kit.Text(http.StatusInternalServerError, err.Error())
 	}
 )
 
-type defaultAuth struct{}
+type DefaultAuth struct{}
 
-func (defaultAuth) Check() bool { return false }
+func (DefaultAuth) Check() bool { return false }
 
 type Kit struct {
 	Response http.ResponseWriter
@@ -40,19 +40,28 @@ type Kit struct {
 }
 
 func UseErrorHandler(h ErrorHandlerFunc) { errorHandler = h }
-func SetAuth(a Auth)                     { auth = a }
 
 func (kit *Kit) Auth() Auth {
 	value, ok := kit.Request.Context().Value(AuthKey{}).(Auth)
 	if !ok {
 		slog.Warn("kit authentication not set")
-		return auth
+		return DefaultAuth{}
 	}
 	return value
 }
 
-func (kit *Kit) Redirect(status int, url string) {
+func (kit *Kit) Redirect(status int, url string) error {
 	http.Redirect(kit.Response, kit.Request, url, status)
+	return nil
+}
+
+func (kit *Kit) HXRedirect(status int, url string) error {
+	if len(kit.Request.Header.Get("HX-Request")) > 0 {
+		kit.Response.Header().Set("HX-Redirect", url)
+		kit.Response.WriteHeader(http.StatusSeeOther)
+		return nil
+	}
+	return kit.Redirect(status, url)
 }
 
 func (kit *Kit) JSON(status int, v any) error {
@@ -122,4 +131,16 @@ func WithAuthentication(config AuthenticationConfig, strict bool) func(http.Hand
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
+}
+
+func IsDevelopment() bool {
+	return os.Getenv("KIT_ENV") == "development"
+}
+
+func IsProduction() bool {
+	return os.Getenv("KIT_ENV") == "production"
+}
+
+func Env() string {
+	return os.Getenv("KIT_ENV")
 }

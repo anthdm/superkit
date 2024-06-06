@@ -1,0 +1,18 @@
+package landing
+
+import (
+	"github.com/anthdm/gothkit/pkg/view"
+	"example-app/app/views/layouts"
+)
+
+templ Index() {
+	@layouts.App() {
+		<div class="mt-20">
+			<h1 class="text-3xl lg:text-6xl font-bold text-center">Ship stuff with small teams</h1>
+		</div>
+		<div>{ view.URL(ctx).Path }</div>
+		if view.Auth(ctx).Check() {
+			<div>You are authenticated</div>
+		}
+	}
+}

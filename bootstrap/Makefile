@@ -41,11 +41,14 @@ live/sync_assets:
 dev:
 	@make -j5 live/templ live/server live/tailwind live/sync_assets
 
-reset:
-	@GOOSE_DRIVER=postgres GOOSE_DBSTRING=$(dsn) goose -dir=$(migrationPath) reset
+db-status:
+	GOOSE_DRIVER=$(DB_DRIVER) GOOSE_DBSTRING=$(DB_NAME) goose status
 
-up:
-	@GOOSE_DRIVER=postgres GOOSE_DBSTRING=$(dsn) goose -dir=$(migrationPath) up
+db-reset:
+	@GOOSE_DRIVER=$(DB_DRIVER) GOOSE_DBSTRING=$(DB_NAME) goose -dir=$(MIGRATION_DIR) reset
 
-seed:
-	@go run scripts/seed/main.go
+db-up:
+	@GOOSE_DRIVER=$(DB_DRIVER) GOOSE_DBSTRING=$(DB_NAME) goose -dir=$(MIGRATION_DIR) up
+
+db-seed:
+	@go run cmd/scripts/seed/main.go

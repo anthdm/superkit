@@ -1,33 +1,30 @@
 package main
 
 import (
-	"log"
-	"log/slog"
+	"example-app/app"
+	"fmt"
 	"net/http"
 	"os"
 
-	"example-app/db"
-
+	"github.com/anthdm/gothkit/pkg/kit"
 	"github.com/go-chi/chi/v5"
 )
 
 func main() {
-	db, err := db.New()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	_ = db
-
-	// Routes configuration
 	router := chi.NewMux()
-	if true {
-		router.Handle("/*", disableCache(staticDev()))
-	}
-	initializeRoutes(router, db)
 
-	listenAddr := os.Getenv("HTTP_LISTEN_ADDR")
-	slog.Info("application started", "listenAddr", listenAddr)
+	app.InitializeMiddleware(router)
+
+	if kit.IsDevelopment() {
+		router.Handle("/public/*", disableCache(staticDev()))
+	}
+
+	kit.UseErrorHandler(app.ErrorHandler)
+	router.HandleFunc("/*", kit.Handler(app.NotFoundHandler))
+
+	app.InitializeRoutes(router)
+
+	fmt.Printf("application running in %s at %s\n", kit.Env(), "http://localhost:7331")
 
 	http.ListenAndServe(os.Getenv("HTTP_LISTEN_ADDR"), router)
 }

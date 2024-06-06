@@ -1,0 +1,3 @@
+package conf
+
+// Application config
