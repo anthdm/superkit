@@ -1,6 +1,8 @@
 # GOTHKIT
 ..
 
+> NOT READY (YET)
+
 # Installation
 ```
 go install github.com/anthdm/gothkit@master
