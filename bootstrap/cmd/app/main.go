@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/anthdm/gothkit/pkg/kit"
+	"github.com/anthdm/gothkit/kit"
 	"github.com/go-chi/chi/v5"
 )
 

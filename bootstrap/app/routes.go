@@ -5,8 +5,8 @@ import (
 	"AABBCCDD/app/views/errors"
 	"log/slog"
 
-	"github.com/anthdm/gothkit/pkg/kit"
-	"github.com/anthdm/gothkit/pkg/kit/middleware"
+	"github.com/anthdm/gothkit/kit"
+	"github.com/anthdm/gothkit/kit/middleware"
 	"github.com/go-chi/chi/v5"
 
 	chimiddleware "github.com/go-chi/chi/v5/middleware"

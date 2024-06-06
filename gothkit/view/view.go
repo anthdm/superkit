@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/anthdm/gothkit/pkg/kit"
-	"github.com/anthdm/gothkit/pkg/kit/middleware"
+	"github.com/anthdm/gothkit/kit"
+	"github.com/anthdm/gothkit/kit/middleware"
 )
 
 // Auth is a view helper function that returns the currency Auth.
