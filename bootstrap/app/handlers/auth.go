@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"example-app/app/types"
+	"AABBCCDD/app/types"
 
 	"github.com/anthdm/gothkit/pkg/kit"
 )

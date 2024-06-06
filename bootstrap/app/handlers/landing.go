@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"example-app/app/db"
-	"example-app/app/views/landing"
+	"AABBCCDD/app/db"
+	"AABBCCDD/app/views/landing"
 
 	"github.com/anthdm/gothkit/pkg/kit"
 )

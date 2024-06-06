@@ -1,4 +1,4 @@
-module example-app
+module AABBCCDD
 
 go 1.22.0
 
@@ -26,4 +26,4 @@ require (
 	github.com/uptrace/bun/extra/bundebug v1.2.1
 )
 
-replace github.com/anthdm/gothkit => ../gothkit
+// replace github.com/anthdm/gothkit => ../gothkit

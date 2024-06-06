@@ -1,8 +1,8 @@
 package app
 
 import (
-	"example-app/app/handlers"
-	"example-app/app/views/errors"
+	"AABBCCDD/app/handlers"
+	"AABBCCDD/app/views/errors"
 	"log/slog"
 
 	"github.com/anthdm/gothkit/pkg/kit"

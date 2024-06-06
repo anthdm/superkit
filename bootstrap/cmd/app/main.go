@@ -1,7 +1,7 @@
 package main
 
 import (
-	"example-app/app"
+	"AABBCCDD/app"
 	"fmt"
 	"net/http"
 	"os"
