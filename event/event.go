@@ -7,36 +7,54 @@ import (
 	"time"
 )
 
+// HandlerFunc is the function being called when receiving an event.
+type HandlerFunc func(context.Context, any)
+
+// Emit and event to the given topic
+func Emit(topic string, event any) {
+	stream.emit(topic, event)
+}
+
+// Subscribe a HandlerFunc to the given topic.
+// A Subscription is being returned that can be used
+// to unsubscribe from the topic.
+func Subscribe(topic string, h HandlerFunc) Subscription {
+	return stream.subscribe(topic, h)
+}
+
+// Unsubscribe unsubribes the given Subscription from its topic.
+func Unsubscribe(sub Subscription) {
+	stream.unsubscribe(sub)
+}
+
+// Stop stops the event stream, cleaning up its resources.
+func Stop() {
+	stream.stop()
+}
+
+var stream *eventStream
+
 type event struct {
 	topic   string
 	message any
 }
 
-type CreateUserEvent struct{}
-
-func HandleCreateUserEvent(ctx context.Context, event CreateUserEvent) {}
-
-// Handler is the function being called when receiving an event.
-type Handler func(context.Context, any)
-
 // Subscription represents a handler subscribed to a specific topic.
 type Subscription struct {
 	Topic     string
 	CreatedAt int64
-	Handler   Handler
+	Fn        HandlerFunc
 }
 
-// EventStream
-type EventStream struct {
+type eventStream struct {
 	mu      sync.RWMutex
 	subs    map[string][]Subscription
 	eventch chan event
 	quitch  chan struct{}
 }
 
-// New return a new EventStream
-func New() *EventStream {
-	e := &EventStream{
+func newStream() *eventStream {
+	e := &eventStream{
 		subs:    make(map[string][]Subscription),
 		eventch: make(chan event, 128),
 		quitch:  make(chan struct{}),
@@ -45,7 +63,7 @@ func New() *EventStream {
 	return e
 }
 
-func (e *EventStream) start() {
+func (e *eventStream) start() {
 	ctx := context.Background()
 	for {
 		select {
@@ -54,35 +72,32 @@ func (e *EventStream) start() {
 		case evt := <-e.eventch:
 			if handlers, ok := e.subs[evt.topic]; ok {
 				for _, sub := range handlers {
-					go sub.Handler(ctx, evt.message)
+					go sub.Fn(ctx, evt.message)
 				}
 			}
 		}
 	}
 }
 
-// Stop stops the EventStream
-func (e *EventStream) Stop() {
+func (e *eventStream) stop() {
 	e.quitch <- struct{}{}
 }
 
-// Emit an event by specifying a topic and an arbitrary data type
-func (e *EventStream) Emit(topic string, v any) {
+func (e *eventStream) emit(topic string, v any) {
 	e.eventch <- event{
 		topic:   topic,
 		message: v,
 	}
 }
 
-// Subscribe subscribes a handler to the given topic
-func (e *EventStream) Subscribe(topic string, h Handler) Subscription {
+func (e *eventStream) subscribe(topic string, h HandlerFunc) Subscription {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 
 	sub := Subscription{
 		CreatedAt: time.Now().UnixNano(),
 		Topic:     topic,
-		Handler:   h,
+		Fn:        h,
 	}
 
 	if _, ok := e.subs[topic]; !ok {
@@ -94,8 +109,7 @@ func (e *EventStream) Subscribe(topic string, h Handler) Subscription {
 	return sub
 }
 
-// Unsubscribe unsubscribes the given Subscription
-func (e *EventStream) Unsubscribe(sub Subscription) {
+func (e *eventStream) unsubscribe(sub Subscription) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 
@@ -104,4 +118,11 @@ func (e *EventStream) Unsubscribe(sub Subscription) {
 			return sub.CreatedAt == e.CreatedAt
 		})
 	}
+	if len(e.subs[sub.Topic]) == 0 {
+		delete(e.subs, sub.Topic)
+	}
+}
+
+func init() {
+	stream = newStream()
 }
