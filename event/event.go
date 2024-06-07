@@ -12,6 +12,10 @@ type event struct {
 	message any
 }
 
+type CreateUserEvent struct{}
+
+func HandleCreateUserEvent(ctx context.Context, event CreateUserEvent) {}
+
 // Handler is the function being called when receiving an event.
 type Handler func(context.Context, any)
 

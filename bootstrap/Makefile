@@ -21,7 +21,7 @@ live/server:
 
 # run tailwindcss to generate the styles.css bundle in watch mode.
 live/tailwind:
-	tailwindcss -i assets/app.css -o ./public/styles.css --watch   
+	tailwindcss -i app/assets/app.css -o ./public/styles.css --watch   
 
 # run esbuild to generate the index.js bundle in watch mode.
 live/esbuild:
@@ -49,6 +49,9 @@ db-reset:
 
 db-up:
 	@GOOSE_DRIVER=$(DB_DRIVER) GOOSE_DBSTRING=$(DB_NAME) goose -dir=$(MIGRATION_DIR) up
+
+db-mig:
+	@GOOSE_DRIVER=$(DB_DRIVER) GOOSE_DBSTRING=$(DB_NAME) goose -dir=$(MIGRATION_DIR) create $(filter-out $@,$(MAKECMDGOALS)) sql
 
 db-seed:
 	@go run cmd/scripts/seed/main.go
