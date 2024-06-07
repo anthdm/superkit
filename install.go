@@ -14,7 +14,7 @@ import (
 const (
 	replaceID           = "AABBCCDD"
 	bootstrapFolderName = "bootstrap"
-	reponame            = "github.com/anthdm/gothkit"
+	reponame            = "https://github.com/anthdm/gothkit.git"
 )
 
 func main() {
