@@ -47,6 +47,9 @@ db-status:
 db-reset:
 	@GOOSE_DRIVER=$(DB_DRIVER) GOOSE_DBSTRING=$(DB_NAME) goose -dir=$(MIGRATION_DIR) reset
 
+db-down:
+	@GOOSE_DRIVER=$(DB_DRIVER) GOOSE_DBSTRING=$(DB_NAME) goose -dir=$(MIGRATION_DIR) down
+
 db-up:
 	@GOOSE_DRIVER=$(DB_DRIVER) GOOSE_DBSTRING=$(DB_NAME) goose -dir=$(MIGRATION_DIR) up
 

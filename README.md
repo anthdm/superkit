@@ -12,6 +12,13 @@ After installation you can create a new project by running:
 gothkit [myprojectname]
 ```
 
+CD into your project and start the development server
+```
+cd [myprojectname]
+
+make dev
+```
+
 # Getting started
 
 ## Migrations
