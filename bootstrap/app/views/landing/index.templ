@@ -1,18 +1,14 @@
 package landing
 
 import (
-	"github.com/anthdm/gothkit/view"
 	"AABBCCDD/app/views/layouts"
 )
 
 templ Index() {
 	@layouts.App() {
-		<div class="mt-20">
-			<h1 class="text-3xl lg:text-6xl font-bold text-center">Ship stuff with small teams</h1>
+		<div class="mt-20 text-center flex flex-col gap-10">
+			<h1 class="text-3xl lg:text-6xl font-bold">A single binary to change the world</h1>
+			<a class="text-xl underline text-blue-500" target="_blank" href="https://github.com/anthdm/gothkit">Get started by reading the documentation</a>
 		</div>
-		<div>{ view.URL(ctx).Path }</div>
-		if view.Auth(ctx).Check() {
-			<div>You are authenticated</div>
-		}
 	}
 }
