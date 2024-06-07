@@ -3,6 +3,10 @@ github.com/a-h/templ v0.2.707/go.mod h1:5cqsugkq9IerRNucNsI4DEamdHPsoGMQy99DzydL
 github.com/anthdm/gothkit v0.0.0-20240606095122-e65b6d50b1a7/go.mod h1:QLre7XyvsU9RKQKh0XFXUX+L5Lfph2jViZgtdfIDKsQ=
 github.com/anthdm/gothkit v0.0.0-20240606141535-31a222db1a4a h1:0g//UhjEaQsXsNXrZaXvlFIIpNcTi44AW2s5GwFvl6o=
 github.com/anthdm/gothkit v0.0.0-20240606141535-31a222db1a4a/go.mod h1:ppehL6Nf6qf1HiozXFELwbh84SDR/aO9zdHmcJwxNng=
+github.com/anthdm/gothkit v0.0.0-20240607073122-99cbc94b2cc1 h1:xYWzcL00bz5nlYIXe23l61h8ry539wK83CXXw+w6evw=
+github.com/anthdm/gothkit v0.0.0-20240607073122-99cbc94b2cc1/go.mod h1:ppehL6Nf6qf1HiozXFELwbh84SDR/aO9zdHmcJwxNng=
+github.com/anthdm/gothkit v0.0.0-20240607090309-1b5fc6bda9a4 h1:VFCgfPhlyhZk56NauI+TBhKJC1mR3ICfX+7Q28EVbB8=
+github.com/anthdm/gothkit v0.0.0-20240607090309-1b5fc6bda9a4/go.mod h1:ppehL6Nf6qf1HiozXFELwbh84SDR/aO9zdHmcJwxNng=
 github.com/fatih/color v1.16.0 h1:zmkK9Ngbjj+K0yRhTVONQh1p/HknKYSlNT+vZCzyokM=
 github.com/fatih/color v1.16.0/go.mod h1:fL2Sau1YI5c0pdGEVCbKQbLXB6edEj1ZgiY4NijnWvE=
 github.com/go-chi/chi/v5 v5.0.12 h1:9euLV5sTrTNTRUU9POmDUvfxyj6LAABLUcEWO+JJb4s=

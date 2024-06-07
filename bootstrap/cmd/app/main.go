@@ -23,6 +23,7 @@ func main() {
 	router.HandleFunc("/*", kit.Handler(app.NotFoundHandler))
 
 	app.InitializeRoutes(router)
+	app.RegisterEvents()
 
 	fmt.Printf("application running in %s at %s\n", kit.Env(), "http://localhost:7331")
 
