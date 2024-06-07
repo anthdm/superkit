@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"log"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
@@ -13,6 +14,7 @@ import (
 const (
 	replaceID           = "AABBCCDD"
 	bootstrapFolderName = "bootstrap"
+	reponame            = "github.com/anthdm/gothkit"
 )
 
 func main() {
@@ -28,6 +30,11 @@ func main() {
 	}
 
 	projectName := args[0]
+
+	clone := exec.Command("git clone " + reponame)
+	if err := clone.Run(); err != nil {
+		log.Fatal(err)
+	}
 
 	if err := os.Rename(path.Join("gothkit", bootstrapFolderName), projectName); err != nil {
 		log.Fatal(err)

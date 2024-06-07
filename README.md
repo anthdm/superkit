@@ -1,5 +1,4 @@
 # GOTHKIT
-..
 
 > NOT READY (YET)
 
