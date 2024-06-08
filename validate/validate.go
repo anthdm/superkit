@@ -5,57 +5,42 @@ import (
 	"maps"
 	"net/http"
 	"reflect"
-	"regexp"
 	"strconv"
 	"unicode"
 )
 
-var (
-	emailRegex = regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
-	urlRegex   = regexp.MustCompile(`^(http(s)?://)?([\da-z\.-]+)\.([a-z\.]{2,6})([/\w \.-]*)*/?$`)
-)
-
-type RuleFunc func() RuleSet
-
-type RuleSet struct {
-	Name         string
-	RuleValue    any
-	FieldValue   any
-	FieldName    any
-	ErrorMessage string
-	MessageFunc  func(RuleSet) string
-	ValidateFunc func(RuleSet) bool
-}
-
-func (set RuleSet) Message(msg string) RuleSet {
-	set.ErrorMessage = msg
-	return set
-}
-
+// Errors is a map holding all the possible errors that may
+// occur during validation.
 type Errors map[string][]string
 
+// Any return true if there is any error.
 func (e Errors) Any() bool {
 	return len(e) > 0
 }
 
-func (e Errors) Add(name string, msg string) {
-	if _, ok := e[name]; !ok {
-		e[name] = []string{}
+// Add adds an error for a specific field
+func (e Errors) Add(field string, msg string) {
+	if _, ok := e[field]; !ok {
+		e[field] = []string{}
 	}
-	e[name] = append(e[name], msg)
+	e[field] = append(e[field], msg)
 }
 
-func (e Errors) Get(name string) []string {
-	return e[name]
+// Get returns all the errors for the given field.
+func (e Errors) Get(field string) []string {
+	return e[field]
 }
 
-func (e Errors) Has(name string) bool {
-	return len(e[name]) > 0
+// Has returns true whether the given field has any errors.
+func (e Errors) Has(field string) bool {
+	return len(e[field]) > 0
 }
 
+// Schema represents a validation schema.
 type Schema map[string][]RuleSet
 
-func (schema Schema) Merge(other Schema) Schema {
+// Merge merges the two given schemas returning a new Schema.
+func Merge(schema, other Schema) Schema {
 	newSchema := Schema{}
 	maps.Copy(newSchema, schema)
 	maps.Copy(newSchema, other)
@@ -89,13 +74,8 @@ func Request(r *http.Request, data any, schema Schema) (Errors, bool) {
 func validate(data any, schema Schema, errors Errors) (Errors, bool) {
 	ok := true
 	for fieldName, ruleSets := range schema {
-		// reflect panics on un-exported variables.
-		if !unicode.IsUpper(rune(fieldName[0])) {
-			errors[fieldName] = []string{
-				"cant marshal unexported field",
-			}
-			return errors, false
-		}
+		// Uppercase the field name so we never check un-exported fields
+		fieldName = string(unicode.ToUpper(rune(fieldName[0]))) + fieldName[1:]
 		fieldValue := getFieldValueByName(data, fieldName)
 		for _, set := range ruleSets {
 			set.FieldValue = fieldValue

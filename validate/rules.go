@@ -3,7 +3,28 @@ package validate
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 )
+
+var (
+	emailRegex = regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
+	urlRegex   = regexp.MustCompile(`^(http(s)?://)?([\da-z\.-]+)\.([a-z\.]{2,6})([/\w \.-]*)*/?$`)
+)
+
+type RuleSet struct {
+	Name         string
+	RuleValue    any
+	FieldValue   any
+	FieldName    any
+	ErrorMessage string
+	MessageFunc  func(RuleSet) string
+	ValidateFunc func(RuleSet) bool
+}
+
+func (set RuleSet) Message(msg string) RuleSet {
+	set.ErrorMessage = msg
+	return set
+}
 
 type Numeric interface {
 	int | float64
