@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/anthdm/gothkit v0.0.0-20240608092625-85a106b8717c
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -15,7 +16,6 @@ require (
 
 require (
 	github.com/a-h/templ v0.2.707
-	github.com/anthdm/gothkit v0.0.0-20240608091251-8198dfa775c8
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/joho/godotenv v1.5.1
@@ -26,3 +26,8 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
 )
+
+// Uncomment this if you are working directly on the core gothkit repo.
+// This will directly reflect changes you've made in the gothkit core repo
+// to the bootstrap folder.
+// replace github.com/anthdm/gothkit => ../
