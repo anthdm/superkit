@@ -14,9 +14,9 @@ require (
 )
 
 require (
-	github.com/a-h/templ v0.2.707 // indirect
-	github.com/anthdm/gothkit v0.0.0-20240608091251-8198dfa775c8 // indirect
-	github.com/go-chi/chi/v5 v5.0.12 // indirect
+	github.com/a-h/templ v0.2.707
+	github.com/anthdm/gothkit v0.0.0-20240608091251-8198dfa775c8
+	github.com/go-chi/chi/v5 v5.0.12
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/joho/godotenv v1.5.1
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
