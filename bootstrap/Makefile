@@ -39,7 +39,7 @@ sync_assets:
 
 # start the application in development
 dev:
-	@make -j5 templ server assets sync_assets
+	@make -j4 templ server assets sync_assets
 
 # build the application for production. This will compile your app
 # to a single binary with all its assets embedded.

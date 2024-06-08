@@ -22,10 +22,8 @@ templ BaseLayout() {
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 			<!-- HTMX -->
 			<script src="https://unpkg.com/htmx.org@1.9.9" defer></script>
-			<!-- Font Awesome -->
-			<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
 		</head>
-		<body>
+		<body x-data="{theme: 'light'}" :class="theme" lang="en">
 			{ children... }
 		</body>
 	</html>
