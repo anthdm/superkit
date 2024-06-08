@@ -17,6 +17,10 @@ func TestRuleIn(t *testing.T) {
 	errors, ok := Validate(foo, schema)
 	assert.True(t, ok)
 	assert.Empty(t, errors)
+	foo = Foo{"foo"}
+	errors, ok = Validate(foo, schema)
+	assert.False(t, ok)
+	assert.Len(t, errors["currency"], 1)
 }
 
 func TestValidate(t *testing.T) {
