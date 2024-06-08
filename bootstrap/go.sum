@@ -7,6 +7,8 @@ github.com/anthdm/gothkit v0.0.0-20240607073122-99cbc94b2cc1 h1:xYWzcL00bz5nlYIX
 github.com/anthdm/gothkit v0.0.0-20240607073122-99cbc94b2cc1/go.mod h1:ppehL6Nf6qf1HiozXFELwbh84SDR/aO9zdHmcJwxNng=
 github.com/anthdm/gothkit v0.0.0-20240607090309-1b5fc6bda9a4 h1:VFCgfPhlyhZk56NauI+TBhKJC1mR3ICfX+7Q28EVbB8=
 github.com/anthdm/gothkit v0.0.0-20240607090309-1b5fc6bda9a4/go.mod h1:ppehL6Nf6qf1HiozXFELwbh84SDR/aO9zdHmcJwxNng=
+github.com/anthdm/gothkit v0.0.0-20240608091251-8198dfa775c8 h1:2C+WGVrNvIiSLFLJRRgKasJ8aWXR2pfsOh3T5flcMwI=
+github.com/anthdm/gothkit v0.0.0-20240608091251-8198dfa775c8/go.mod h1:/zW/YMI9hOvRTQwmpfRU+CoJ+m4LZYuzC496KFOJAM8=
 github.com/fatih/color v1.16.0 h1:zmkK9Ngbjj+K0yRhTVONQh1p/HknKYSlNT+vZCzyokM=
 github.com/fatih/color v1.16.0/go.mod h1:fL2Sau1YI5c0pdGEVCbKQbLXB6edEj1ZgiY4NijnWvE=
 github.com/go-chi/chi/v5 v5.0.12 h1:9euLV5sTrTNTRUU9POmDUvfxyj6LAABLUcEWO+JJb4s=
