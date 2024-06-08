@@ -47,7 +47,7 @@ func staticDev() http.Handler {
 }
 
 func staticProd() http.Handler {
-	return http.FileServerFS(public.AssetsFS)
+	return http.StripPrefix("/public/", http.FileServerFS(public.AssetsFS))
 }
 
 func disableCache(next http.Handler) http.Handler {
