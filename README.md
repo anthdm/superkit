@@ -20,6 +20,12 @@ make dev
 ```
 
 # Getting started
+## Hot reloading the browser
+Hot reloading is configured by default, the only thing left to do is watching for changes to your assets by running the following command:
+```
+make assets
+```
+
 ## Migrations
 ### Create a new migration
 ```
