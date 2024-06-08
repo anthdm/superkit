@@ -2,11 +2,17 @@ package view
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 
+	"github.com/a-h/templ"
 	"github.com/anthdm/gothkit/kit"
 	"github.com/anthdm/gothkit/kit/middleware"
 )
+
+func Asset(name string) templ.SafeURL {
+	return templ.URL(fmt.Sprintf("/public/assets/%s", name))
+}
 
 // Auth is a view helper function that returns the current Auth.
 // If Auth is not set a default auth will be returned

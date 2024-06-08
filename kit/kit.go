@@ -50,12 +50,8 @@ func (kit *Kit) Auth() Auth {
 	return value
 }
 
+// Redirect with HTMX support.
 func (kit *Kit) Redirect(status int, url string) error {
-	http.Redirect(kit.Response, kit.Request, url, status)
-	return nil
-}
-
-func (kit *Kit) HXRedirect(status int, url string) error {
 	if len(kit.Request.Header.Get("HX-Request")) > 0 {
 		kit.Response.Header().Set("HX-Redirect", url)
 		kit.Response.WriteHeader(http.StatusSeeOther)
