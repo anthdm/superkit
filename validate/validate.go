@@ -47,6 +47,7 @@ func Merge(schema, other Schema) Schema {
 	return newSchema
 }
 
+// Rules is a function that takes any amount of RuleSets
 func Rules(rules ...RuleSet) []RuleSet {
 	ruleSets := make([]RuleSet, len(rules))
 	for i := 0; i < len(ruleSets); i++ {

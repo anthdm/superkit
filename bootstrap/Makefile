@@ -8,7 +8,7 @@ endif
 # re-create _templ.txt files on change, then send reload event to browser. 
 # Default url: http://localhost:7331
 templ:
-	@templ generate --watch --proxy="http://localhost$(HTTP_LISTEN_ADDR)" --open-browser=false -v
+	@go run github.com/a-h/templ/cmd/templ@latest generate --watch --proxy="http://localhost$(HTTP_LISTEN_ADDR)" --open-browser=false -v
 
 # run air to detect any go file changes to re-build and re-run the server.
 server:
@@ -30,7 +30,7 @@ esbuild:
 # watch for any js or css change in the assets/ folder, then reload the browser via templ proxy.
 sync_assets:
 	go run github.com/cosmtrek/air@v1.51.0 \
-	--build.cmd "templ generate --notify-proxy" \
+	--build.cmd "go run github.com/a-h/templ/cmd/templ@latest generate --notify-proxy" \
 	--build.bin "true" \
 	--build.delay "100" \
 	--build.exclude_dir "" \

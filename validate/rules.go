@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"time"
+	"unicode"
 )
 
 var (
@@ -11,6 +13,7 @@ var (
 	urlRegex   = regexp.MustCompile(`^(http(s)?://)?([\da-z\.-]+)\.([a-z\.]{2,6})([/\w \.-]*)*/?$`)
 )
 
+// RuleSet holds the state of a single rule.
 type RuleSet struct {
 	Name         string
 	RuleValue    any
@@ -21,6 +24,7 @@ type RuleSet struct {
 	ValidateFunc func(RuleSet) bool
 }
 
+// Message overrides the default message of a RuleSet
 func (set RuleSet) Message(msg string) RuleSet {
 	set.ErrorMessage = msg
 	return set
@@ -49,50 +53,160 @@ func In[T any](values []T) RuleSet {
 	}
 }
 
-func Required() RuleSet {
+var ContainsUpper = RuleSet{
+	Name: "containsUpper",
+	ValidateFunc: func(rule RuleSet) bool {
+		str, ok := rule.FieldValue.(string)
+		if !ok {
+			return false
+		}
+		for _, ch := range str {
+			if unicode.IsUpper(rune(ch)) {
+				return true
+			}
+		}
+		return false
+	},
+	MessageFunc: func(set RuleSet) string {
+		return "must contain at least 1 uppercase character"
+	},
+}
+
+var ContainsNumeric = RuleSet{
+	Name: "containsNumeric",
+	ValidateFunc: func(rule RuleSet) bool {
+		str, ok := rule.FieldValue.(string)
+		if !ok {
+			return false
+		}
+		for _, ch := range str {
+			if isSpecial(ch) {
+				return true
+			}
+		}
+		return false
+	},
+	MessageFunc: func(set RuleSet) string {
+		return "must contain at least 1 numeric character"
+	},
+}
+
+var ContainsSpecial = RuleSet{
+	Name: "containsSpecial",
+	ValidateFunc: func(rule RuleSet) bool {
+		str, ok := rule.FieldValue.(string)
+		if !ok {
+			return false
+		}
+		for _, ch := range str {
+			if isSpecial(ch) {
+				return true
+			}
+		}
+		return false
+	},
+	MessageFunc: func(set RuleSet) string {
+		return "must contain at least 1 special character"
+	},
+}
+
+var Required = RuleSet{
+	Name: "required",
+	MessageFunc: func(set RuleSet) string {
+		return "is a required field"
+	},
+	ValidateFunc: func(rule RuleSet) bool {
+		str, ok := rule.FieldValue.(string)
+		if !ok {
+			return false
+		}
+		return len(str) > 0
+	},
+}
+
+var URL = RuleSet{
+	Name: "url",
+	MessageFunc: func(set RuleSet) string {
+		return "is not a valid url"
+	},
+	ValidateFunc: func(set RuleSet) bool {
+		u, ok := set.FieldValue.(string)
+		if !ok {
+			return false
+		}
+		return urlRegex.MatchString(u)
+	},
+}
+
+var Email = RuleSet{
+	Name: "email",
+	MessageFunc: func(set RuleSet) string {
+		return "is not a valid email address"
+	},
+	ValidateFunc: func(set RuleSet) bool {
+		email, ok := set.FieldValue.(string)
+		if !ok {
+			return false
+		}
+		return emailRegex.MatchString(email)
+	},
+}
+
+var Time = RuleSet{
+	Name: "time",
+	ValidateFunc: func(set RuleSet) bool {
+		t, ok := set.FieldValue.(time.Time)
+		if !ok {
+			return false
+		}
+		return t.After(time.Time{})
+	},
+	MessageFunc: func(set RuleSet) string {
+		return "is not a valid time"
+	},
+}
+
+func TimeAfter(t time.Time) RuleSet {
 	return RuleSet{
-		Name: "required",
-		MessageFunc: func(set RuleSet) string {
-			return "is a required field"
-		},
-		ValidateFunc: func(rule RuleSet) bool {
-			str, ok := rule.FieldValue.(string)
+		Name: "timeAfter",
+		ValidateFunc: func(set RuleSet) bool {
+			t, ok := set.FieldValue.(time.Time)
 			if !ok {
 				return false
 			}
-			return len(str) > 0
+			return t.After(t)
+		},
+		MessageFunc: func(set RuleSet) string {
+			return fmt.Sprintf("is not after %v", set.FieldValue)
 		},
 	}
 }
 
-func Url() RuleSet {
+func TimeBefore(t time.Time) RuleSet {
 	return RuleSet{
-		Name: "url",
-		MessageFunc: func(set RuleSet) string {
-			return "is not a valid url"
-		},
+		Name: "timeBefore",
 		ValidateFunc: func(set RuleSet) bool {
-			u, ok := set.FieldValue.(string)
+			t, ok := set.FieldValue.(time.Time)
 			if !ok {
 				return false
 			}
-			return urlRegex.MatchString(u)
+			return t.Before(t)
+		},
+		MessageFunc: func(set RuleSet) string {
+			return fmt.Sprintf("is not before %v", set.FieldValue)
 		},
 	}
 }
 
-func Email() RuleSet {
+func EQ[T comparable](v T) RuleSet {
 	return RuleSet{
-		Name: "email",
-		MessageFunc: func(set RuleSet) string {
-			return "is not a valid email address"
-		},
+		Name:      "eq",
+		RuleValue: v,
 		ValidateFunc: func(set RuleSet) bool {
-			email, ok := set.FieldValue.(string)
-			if !ok {
-				return false
-			}
-			return emailRegex.MatchString(email)
+			return set.FieldValue.(T) == v
+		},
+		MessageFunc: func(set RuleSet) string {
+			return fmt.Sprintf("should be equal to %v", v)
 		},
 	}
 }
@@ -181,4 +295,8 @@ func Min(n int) RuleSet {
 			return fmt.Sprintf("should be at least %d characters long", n)
 		},
 	}
+}
+
+func isSpecial(ch rune) bool {
+	return true
 }

@@ -1,10 +1,69 @@
 package validate
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+var createdAt = time.Now()
+
+var testSchema = Schema{
+	"createdAt": Rules(Time),
+	"startedAt": Rules(TimeBefore(time.Now())),
+	"deletedAt": Rules(TimeAfter(createdAt)),
+	"email":     Rules(Email),
+	"url":       Rules(URL),
+	"password": Rules(
+		ContainsSpecial,
+		ContainsUpper,
+		ContainsNumeric,
+		Min(7),
+		Max(50),
+	),
+	"age":      Rules(GTE(18)),
+	"bet":      Rules(GT(0), LTE(10)),
+	"username": Rules(Required),
+}
+
+func TestTime(t *testing.T) {
+	type Foo struct {
+		CreatedAt time.Time
+	}
+	foo := Foo{
+		CreatedAt: time.Now(),
+	}
+	schema := Schema{
+		"createdAt": Rules(Time),
+	}
+	_, ok := Validate(foo, schema)
+	assert.True(t, ok)
+
+	foo.CreatedAt = time.Time{}
+	_, ok = Validate(foo, schema)
+	assert.False(t, ok)
+}
+
+func TestURL(t *testing.T) {
+	type Foo struct {
+		URL string
+	}
+	foo := Foo{
+		URL: "not an url",
+	}
+	schema := Schema{
+		"url": Rules(URL),
+	}
+	errors, ok := Validate(foo, schema)
+	assert.False(t, ok)
+
+	foo.URL = "www.user.com"
+	errors, ok = Validate(foo, schema)
+	assert.True(t, ok)
+	fmt.Println(errors)
+}
 
 func TestRuleIn(t *testing.T) {
 	type Foo struct {
@@ -29,7 +88,7 @@ func TestValidate(t *testing.T) {
 		Username string
 	}
 	schema := Schema{
-		"email": Rules(Email()),
+		"email": Rules(Email),
 		// Test both lower and uppercase
 		"Username": Rules(Min(3), Max(10)),
 	}
