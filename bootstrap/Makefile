@@ -7,11 +7,11 @@ endif
 # run templ generation in watch mode to detect all .templ files and 
 # re-create _templ.txt files on change, then send reload event to browser. 
 # Default url: http://localhost:7331
-live/templ:
+templ:
 	@templ generate --watch --proxy="http://localhost$(HTTP_LISTEN_ADDR)" --open-browser=false -v
 
 # run air to detect any go file changes to re-build and re-run the server.
-live/server:
+server:
 	@go run github.com/cosmtrek/air@v1.51.0 \
 	--build.cmd "go build --tags dev -o tmp/bin/main ./cmd/app/" --build.bin "tmp/bin/main" --build.delay "100" \
 	--build.exclude_dir "node_modules" \
@@ -20,15 +20,15 @@ live/server:
 	--misc.clean_on_exit true
 
 # run tailwindcss to generate the styles.css bundle in watch mode.
-live/tailwind:
-	tailwindcss -i app/assets/app.css -o ./public/styles.css --watch   
+assets:
+	tailwindcss -i app/assets/app.css -o ./public/assets/styles.css --watch   
 
 # run esbuild to generate the index.js bundle in watch mode.
-live/esbuild:
+esbuild:
 	npx esbuild views/js/index.js --bundle --outdir=public/ --watch
 
 # watch for any js or css change in the assets/ folder, then reload the browser via templ proxy.
-live/sync_assets:
+sync_assets:
 	go run github.com/cosmtrek/air@v1.51.0 \
 	--build.cmd "templ generate --notify-proxy" \
 	--build.bin "true" \
@@ -39,7 +39,14 @@ live/sync_assets:
 
 # start the application in development
 dev:
-	@make -j5 live/templ live/server live/tailwind live/sync_assets
+	@make -j5 templ server assets sync_assets
+
+# build the application for production. This will compile your app
+# to a single binary with all its assets embedded.
+build:
+	@tailwindcss -i app/assets/app.css -o ./public/assets/styles.css
+	@go build -o bin/app_release cmd/app/main.go
+	@echo "compiled you application with all its assets to a single binary => bin/app_release"
 
 db-status:
 	@GOOSE_DRIVER=$(DB_DRIVER) GOOSE_DBSTRING=$(DB_NAME) go run github.com/pressly/goose/v3/cmd/goose@latest status
