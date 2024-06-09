@@ -7,6 +7,14 @@ Create interactive applications with Golang, HTMX, and Templ
 	- [Table of content](#table-of-content)
 - [Installation](#installation)
 - [Getting started](#getting-started)
+	- [Application structure](#application-structure)
+		- [assets](#assets)
+		- [conf](#conf)
+		- [db](#db)
+		- [events](#events)
+		- [handlers](#handlers)
+		- [types](#types)
+		- [views](#views)
 	- [Development server](#development-server)
 	- [Hot reloading the browser](#hot-reloading-the-browser)
 - [Migrations](#migrations)
@@ -16,6 +24,7 @@ Create interactive applications with Golang, HTMX, and Templ
 	- [Seeds](#seeds)
 - [Testing](#testing)
 	- [Testing handlers](#testing-handlers)
+- [Create a production release](#create-a-production-release)
 
 # Installation
 ```
@@ -33,6 +42,15 @@ cd [myprojectname]
 ```
 
 # Getting started
+## Application structure
+### assets
+### conf
+### db
+### events
+### handlers
+### types
+### views
+
 ## Development server
 Run the development server with the following command:
 ```
@@ -71,5 +89,17 @@ This command will run the seeds file located at `cmd/scripts/seed/main.go`
 
 # Testing
 ## Testing handlers
+
+# Create a production release
+Gothkit will compile your whole application including its assets into a single binary. To build your application for production you can run the following command:
+```
+make build
+```
+This will create a binary file located at  `/bin/app_release`.
+
+Make sure you also set the correct application environment variable in your `.env` file.
+```
+APP_ENV	= production
+```
 
 

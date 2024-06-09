@@ -130,13 +130,13 @@ func WithAuthentication(config AuthenticationConfig, strict bool) func(http.Hand
 }
 
 func IsDevelopment() bool {
-	return os.Getenv("KIT_ENV") == "development"
+	return os.Getenv("APP_ENV") == "development"
 }
 
 func IsProduction() bool {
-	return os.Getenv("KIT_ENV") == "production"
+	return os.Getenv("APP_ENV") == "production"
 }
 
 func Env() string {
-	return os.Getenv("KIT_ENV")
+	return os.Getenv("APP_ENV")
 }
