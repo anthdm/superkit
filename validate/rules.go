@@ -72,19 +72,14 @@ var ContainsUpper = RuleSet{
 	},
 }
 
-var ContainsNumeric = RuleSet{
-	Name: "containsNumeric",
+var ContainsDigit = RuleSet{
+	Name: "containsDigit",
 	ValidateFunc: func(rule RuleSet) bool {
 		str, ok := rule.FieldValue.(string)
 		if !ok {
 			return false
 		}
-		for _, ch := range str {
-			if isSpecial(ch) {
-				return true
-			}
-		}
-		return false
+		return hasDigit(str)
 	},
 	MessageFunc: func(set RuleSet) string {
 		return "must contain at least 1 numeric character"
@@ -98,12 +93,7 @@ var ContainsSpecial = RuleSet{
 		if !ok {
 			return false
 		}
-		for _, ch := range str {
-			if isSpecial(ch) {
-				return true
-			}
-		}
-		return false
+		return hasSpecialChar(str)
 	},
 	MessageFunc: func(set RuleSet) string {
 		return "must contain at least 1 special character"
@@ -297,6 +287,20 @@ func Min(n int) RuleSet {
 	}
 }
 
-func isSpecial(ch rune) bool {
-	return true
+func hasDigit(s string) bool {
+	for _, char := range s {
+		if unicode.IsDigit(char) {
+			return true
+		}
+	}
+	return false
+}
+
+func hasSpecialChar(s string) bool {
+	for _, char := range s {
+		if !unicode.IsLetter(char) && !unicode.IsDigit(char) {
+			return true
+		}
+	}
+	return false
 }

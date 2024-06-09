@@ -19,7 +19,7 @@ var testSchema = Schema{
 	"password": Rules(
 		ContainsSpecial,
 		ContainsUpper,
-		ContainsNumeric,
+		ContainsDigit,
 		Min(7),
 		Max(50),
 	),
