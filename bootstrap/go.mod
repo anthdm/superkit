@@ -8,7 +8,7 @@ require (
 )
 
 require (
-	github.com/anthdm/gothkit v0.0.0-20240608094934-49f59f090fb7
+	github.com/anthdm/gothkit v0.0.0-20240609093159-ba618c928403
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

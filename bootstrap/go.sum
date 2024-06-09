@@ -6,6 +6,8 @@ github.com/anthdm/gothkit v0.0.0-20240608092625-85a106b8717c h1:JYV/co6zKfSR4eR/
 github.com/anthdm/gothkit v0.0.0-20240608092625-85a106b8717c/go.mod h1:/zW/YMI9hOvRTQwmpfRU+CoJ+m4LZYuzC496KFOJAM8=
 github.com/anthdm/gothkit v0.0.0-20240608094934-49f59f090fb7 h1:W2/7bSR+GBehAC1+Tg/wigCA6o4y3VAFnkLG4NypB6A=
 github.com/anthdm/gothkit v0.0.0-20240608094934-49f59f090fb7/go.mod h1:/zW/YMI9hOvRTQwmpfRU+CoJ+m4LZYuzC496KFOJAM8=
+github.com/anthdm/gothkit v0.0.0-20240609093159-ba618c928403 h1:lVMZO9WKniLL7yod+a729WPUD7BKgnbWtp/+y7bcLTU=
+github.com/anthdm/gothkit v0.0.0-20240609093159-ba618c928403/go.mod h1:/zW/YMI9hOvRTQwmpfRU+CoJ+m4LZYuzC496KFOJAM8=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/fatih/color v1.16.0 h1:zmkK9Ngbjj+K0yRhTVONQh1p/HknKYSlNT+vZCzyokM=
