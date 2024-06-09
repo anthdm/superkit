@@ -33,10 +33,11 @@ func main() {
 
 	// check if gothkit folder already exists, if so, delete
 	fi, err := os.Stat("gothkit")
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
 		log.Fatal(err)
 	}
-	if fi.IsDir() {
+
+	if fi != nil && fi.IsDir() {
 		fmt.Println("-- deleting gothkit folder cause its already present")
 		if err := os.RemoveAll("gothkit"); err != nil {
 			log.Fatal(err)
