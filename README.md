@@ -22,6 +22,7 @@ Create interactive applications with Golang, HTMX, and Templ
 	- [Migrate the database](#migrate-the-database)
 	- [Reset the database](#reset-the-database)
 	- [Seeds](#seeds)
+- [Validations](#validations)
 - [Testing](#testing)
 	- [Testing handlers](#testing-handlers)
 - [Create a production release](#create-a-production-release)
@@ -60,7 +61,7 @@ make dev
 ## Hot reloading the browser
 Hot reloading is configured by default when running your application in development.
 
-> NOTE: on windows you might need to run `make assets` in another terminal for god knows why.
+> NOTE: on windows you might need to run `make assets` to watch for CSS and JS changes in another terminal.
 
 # Migrations
 ## Create a new migration
@@ -86,6 +87,7 @@ make db-seed
 ```
 This command will run the seeds file located at `cmd/scripts/seed/main.go`
 
+# Validations
 
 # Testing
 ## Testing handlers
