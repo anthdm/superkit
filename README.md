@@ -1,6 +1,7 @@
 # GOTHKIT
 Create interactive applications with Golang, HTMX, and Templ
 
+> The project (for now) is in the **experimental** phase.
 
 ## Table of content
 - [GOTHKIT](#gothkit)
