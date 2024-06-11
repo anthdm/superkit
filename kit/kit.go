@@ -3,18 +3,18 @@ package kit
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
 
 	"github.com/a-h/templ"
+	"github.com/gorilla/sessions"
 )
 
-type HandlerFunc func(kit *Kit) error
+var store *sessions.CookieStore
 
-type Authenticater interface {
-	Authenticate(http.ResponseWriter, *http.Request) error
-}
+type HandlerFunc func(kit *Kit) error
 
 type ErrorHandlerFunc func(kit *Kit, err error)
 
@@ -48,6 +48,13 @@ func (kit *Kit) Auth() Auth {
 		return DefaultAuth{}
 	}
 	return value
+}
+
+// GetSession return a session by its name. GetSession always
+// returns a session even if it does not exist.
+func (kit *Kit) GetSession(name string) *sessions.Session {
+	sess, _ := store.Get(kit.Request, name)
+	return sess
 }
 
 // Redirect with HTMX support.
@@ -101,7 +108,7 @@ func Handler(h HandlerFunc) http.HandlerFunc {
 }
 
 type AuthenticationConfig struct {
-	AuthFunc    func(http.ResponseWriter, *http.Request) (Auth, error)
+	AuthFunc    func(*Kit) (Auth, error)
 	RedirectURL string
 }
 
@@ -112,7 +119,7 @@ func WithAuthentication(config AuthenticationConfig, strict bool) func(http.Hand
 				Response: w,
 				Request:  r,
 			}
-			auth, err := config.AuthFunc(w, r)
+			auth, err := config.AuthFunc(kit)
 			if err != nil {
 				errorHandler(kit, err)
 				return
@@ -121,9 +128,7 @@ func WithAuthentication(config AuthenticationConfig, strict bool) func(http.Hand
 				kit.Redirect(http.StatusSeeOther, config.RedirectURL)
 				return
 			}
-
 			ctx := context.WithValue(r.Context(), AuthKey{}, auth)
-
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
@@ -139,4 +144,18 @@ func IsProduction() bool {
 
 func Env() string {
 	return os.Getenv("APP_ENV")
+}
+
+// initialize the store here so the environment variables are
+// already initialized. Calling NewCookieStore() from outside of
+// a function scope won't work.
+func init() {
+	appSecret := os.Getenv("APP_SECRET")
+	if len(appSecret) < 32 {
+		// For security reasons we are calling os.Exit(1) here so Go's panic recover won't
+		// recover the application without a valid APP_SECRET set.
+		fmt.Println("invalid APP_SECRET variable. Are you sure you have set the APP_SECRET in your .env file?")
+		os.Exit(1)
+	}
+	store = sessions.NewCookieStore([]byte(appSecret))
 }
