@@ -64,7 +64,8 @@ func (kit *Kit) Redirect(status int, url string) error {
 		kit.Response.WriteHeader(http.StatusSeeOther)
 		return nil
 	}
-	return kit.Redirect(status, url)
+	http.Redirect(kit.Response, kit.Request, url, status)
+	return nil
 }
 
 func (kit *Kit) JSON(status int, v any) error {
