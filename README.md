@@ -23,6 +23,7 @@ Create interactive applications with Golang, HTMX, and Templ
 	- [Migrate the database](#migrate-the-database)
 	- [Reset the database](#reset-the-database)
 	- [Seeds](#seeds)
+- [Creating views with Templ](#creating-views-with-templ)
 - [Validations](#validations)
 - [Testing](#testing)
 	- [Testing handlers](#testing-handlers)
@@ -54,7 +55,7 @@ cd [myprojectname]
 ### views
 
 ## Development server
-Run the development server with the following command:
+You can run the development server with the following command:
 ```
 make dev 
 ```
@@ -62,15 +63,15 @@ make dev
 ## Hot reloading the browser
 Hot reloading is configured by default when running your application in development.
 
-> NOTE: on windows you might need to run `make assets` to watch for CSS and JS changes in another terminal.
+> NOTE: on windows or on in my case (WSL2) you might need to run `make assets` in another terminal to watch for CSS and JS file changes.
 
 # Migrations
 ## Create a new migration
 ```
-make db-mig add_user_table
+make db-mig-create add_users_table
 ```
 
-Will create a new migration SQL file inside `app/db/migrations`
+The command will create a new migration SQL file located at `app/db/migrations/add_users_table.sql`
 
 ## Migrate the database 
 ```
@@ -86,9 +87,14 @@ make db-reset
 ```
 make db-seed
 ```
-This command will run the seeds file located at `cmd/scripts/seed/main.go`
+This command will run the seed file located at `cmd/scripts/seed/main.go`
+
+# Creating views with Templ 
+Gothkit uses Templ as its templating engine. Templ allows you to create type safe view components that renders fragments of HTML. In-depth information about Templ can be found here:
+[Templ documentation](https://templ.guide)
 
 # Validations
+todo
 
 # Testing
 ## Testing handlers
@@ -98,7 +104,7 @@ Gothkit will compile your whole application including its assets into a single b
 ```
 make build
 ```
-This will create a binary file located at  `/bin/app_release`.
+This will create a binary file located at  `/bin/app_prod`.
 
 Make sure you also set the correct application environment variable in your `.env` file.
 ```
