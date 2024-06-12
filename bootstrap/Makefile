@@ -24,7 +24,7 @@ watch-assets:
 	tailwindcss -i app/assets/app.css -o ./public/assets/styles.css --watch   
 
 # run esbuild to generate the index.js bundle in watch mode.
-esbuild:
+watch-esbuild:
 	npx esbuild app/assets/index.js --bundle --outdir=public/assets --watch
 
 # watch for any js or css change in the assets/ folder, then reload the browser via templ proxy.
@@ -45,7 +45,7 @@ dev:
 # to a single binary with all its assets embedded.
 build:
 	@tailwindcss -i app/assets/app.css -o ./public/assets/styles.css
-	@npx esbuild app/assets/index.js --bundle --outdir=public/assets --watch
+	@npx esbuild app/assets/index.js --bundle --outdir=public/assets
 	@go build -o bin/app_prod cmd/app/main.go
 	@echo "compiled you application with all its assets to a single binary => bin/app_prod"
 
