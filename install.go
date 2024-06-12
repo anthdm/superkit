@@ -95,14 +95,12 @@ func main() {
 
 	fmt.Println("-- generating secure secret")
 	pathToDotEnv := path.Join(projectName, ".env")
-	fmt.Println("rewriting ->", pathToDotEnv)
 	b, err := os.ReadFile(pathToDotEnv)
 	if err != nil {
 		log.Fatal(err)
 	}
 	secret := generateSecret()
 	replacedContent := strings.Replace(string(b), "{{app_secret}}", secret, -1)
-	fmt.Println(replacedContent)
 	file, err := os.OpenFile(pathToDotEnv, os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Fatal(err)
