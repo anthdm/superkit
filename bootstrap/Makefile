@@ -20,12 +20,12 @@ server:
 	--misc.clean_on_exit true
 
 # run tailwindcss to generate the styles.css bundle in watch mode.
-assets:
+watch-assets:
 	tailwindcss -i app/assets/app.css -o ./public/assets/styles.css --watch   
 
 # run esbuild to generate the index.js bundle in watch mode.
 esbuild:
-	npx esbuild views/js/index.js --bundle --outdir=public/ --watch
+	npx esbuild app/assets/index.js --bundle --outdir=public/assets --watch
 
 # watch for any js or css change in the assets/ folder, then reload the browser via templ proxy.
 sync_assets:
@@ -39,12 +39,13 @@ sync_assets:
 
 # start the application in development
 dev:
-	@make -j4 templ server assets sync_assets
+	@make -j5 templ server watch-assets watch-esbuild sync_assets
 
 # build the application for production. This will compile your app
 # to a single binary with all its assets embedded.
 build:
 	@tailwindcss -i app/assets/app.css -o ./public/assets/styles.css
+	@npx esbuild app/assets/index.js --bundle --outdir=public/assets --watch
 	@go build -o bin/app_prod cmd/app/main.go
 	@echo "compiled you application with all its assets to a single binary => bin/app_prod"
 
