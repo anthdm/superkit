@@ -100,7 +100,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	replacedContent := strings.Replace(string(b), "{{app_secret}}", "foobar", -1)
+	secret := generateSecret()
+	replacedContent := strings.Replace(string(b), "{{app_secret}}", secret, -1)
 	fmt.Println(replacedContent)
 	file, err := os.OpenFile(pathToDotEnv, os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
