@@ -1,4 +1,4 @@
-package db
+package app
 
 import (
 	"log"
@@ -13,7 +13,7 @@ import (
 	"github.com/uptrace/bun/extra/bundebug"
 )
 
-var Query *bun.DB
+var DB *bun.DB
 
 func init() {
 	config := db.Config{
@@ -27,8 +27,8 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	Query = bun.NewDB(db, sqlitedialect.New())
+	DB = bun.NewDB(db, sqlitedialect.New())
 	if kit.IsDevelopment() {
-		Query.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(true)))
+		DB.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(true)))
 	}
 }

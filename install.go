@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"io/fs"
 	"log"
@@ -46,7 +48,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("-- rename bootstrap to", projectName)
+	fmt.Println("-- renaming bootstrap ->", projectName)
 	if err := os.Rename(path.Join("gothkit", bootstrapFolderName), projectName); err != nil {
 		log.Fatal(err)
 	}
@@ -83,5 +85,39 @@ func main() {
 		log.Fatal(err)
 	}
 
+	fmt.Println("-- renaming .env.local -> .env")
+	if err := os.Rename(
+		path.Join(projectName, ".env.local"),
+		path.Join(projectName, ".env"),
+	); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("-- generating secure secret")
+	pathToDotEnv := path.Join(projectName, ".env")
+	fmt.Println("rewriting ->", pathToDotEnv)
+	b, err := os.ReadFile(pathToDotEnv)
+	if err != nil {
+		log.Fatal(err)
+	}
+	replacedContent := strings.Replace(string(b), "{{app_secret}}", "foobar", -1)
+	fmt.Println(replacedContent)
+	file, err := os.OpenFile(pathToDotEnv, os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	_, err = file.WriteString(replacedContent)
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("-- project (%s) successfully installed!\n", projectName)
+}
+
+func generateSecret() string {
+	bytes := make([]byte, 32)
+	if _, err := rand.Read(bytes); err != nil {
+		log.Fatal(err)
+	}
+	return hex.EncodeToString(bytes)
 }
