@@ -135,6 +135,14 @@ func WithAuthentication(config AuthenticationConfig, strict bool) func(http.Hand
 	}
 }
 
+func Getenv(name string, def string) string {
+	env := os.Getenv(name)
+	if len(env) == 0 {
+		return def
+	}
+	return env
+}
+
 func IsDevelopment() bool {
 	return os.Getenv("APP_ENV") == "development"
 }
