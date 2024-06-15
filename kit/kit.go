@@ -144,26 +144,26 @@ func Getenv(name string, def string) string {
 }
 
 func IsDevelopment() bool {
-	return os.Getenv("APP_ENV") == "development"
+	return os.Getenv("SUPERKIT_ENV") == "development"
 }
 
 func IsProduction() bool {
-	return os.Getenv("APP_ENV") == "production"
+	return os.Getenv("SUPERKIT_ENV") == "production"
 }
 
 func Env() string {
-	return os.Getenv("APP_ENV")
+	return os.Getenv("SUPERKIT_ENV")
 }
 
 // initialize the store here so the environment variables are
 // already initialized. Calling NewCookieStore() from outside of
 // a function scope won't work.
 func init() {
-	appSecret := os.Getenv("APP_SECRET")
+	appSecret := os.Getenv("SUPERKIT_SECRET")
 	if len(appSecret) < 32 {
 		// For security reasons we are calling os.Exit(1) here so Go's panic recover won't
-		// recover the application without a valid APP_SECRET set.
-		fmt.Println("invalid APP_SECRET variable. Are you sure you have set the APP_SECRET in your .env file?")
+		// recover the application without a valid SUPERKIT_SECRET set.
+		fmt.Println("invalid SUPERKIT_SECRET variable. Are you sure you have set the SUPERKIT_SECRET in your .env file?")
 		os.Exit(1)
 	}
 	store = sessions.NewCookieStore([]byte(appSecret))

@@ -30,18 +30,19 @@ Create interactive applications with Golang, HTMX, and Templ
 - [Create a production release](#create-a-production-release)
 
 # Installation
+Install SUPERKIT in a single command:
 ```
-go install github.com/anthdm/gothkit@master
-```
-
-After installation you can create a new project by running: 
-```
-gothkit [myprojectname]
+go run github.com/anthdm/gothkit@master [yourprojectname]
 ```
 
 You can now navigate to your project:
 ```
 cd [myprojectname]
+```
+
+Run npm install
+```
+npm install
 ```
 
 # Getting started
@@ -108,7 +109,6 @@ This will create a binary file located at  `/bin/app_prod`.
 
 Make sure you also set the correct application environment variable in your `.env` file.
 ```
-APP_ENV	= production
+SUPERKIT_ENV = production
 ```
-
 
