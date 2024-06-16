@@ -30,7 +30,7 @@ Create interactive applications with Golang, HTMX, and Templ
 - [Create a production release](#create-a-production-release)
 
 # Installation
-Install SUPERKIT in a single command:
+Create your SUPERKIT project in a single command:
 ```
 go run github.com/anthdm/gothkit@master [yourprojectname]
 ```
@@ -40,9 +40,19 @@ You can now navigate to your project:
 cd [myprojectname]
 ```
 
-Run npm install
+Run npm install to install both tailwindcss and esbuild locally.
 ```
 npm install
+```
+
+If you run into dependency issues you can run:
+```
+go clean -modcache && go get -u ./...
+```
+
+If you have the authentication plugin enabled you need to migrate your database.
+```
+make db-up
 ```
 
 # Getting started
