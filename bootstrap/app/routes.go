@@ -3,6 +3,7 @@ package app
 import (
 	"AABBCCDD/app/handlers"
 	"AABBCCDD/app/views/errors"
+	"AABBCCDD/plugins/auth"
 	"log/slog"
 
 	"github.com/anthdm/gothkit/kit"
@@ -21,9 +22,11 @@ func InitializeMiddleware(router *chi.Mux) {
 
 // Define your routes in here
 func InitializeRoutes(router *chi.Mux) {
-	// Comment out to configure your authentication
+	// Authentication plugin:
+	auth.InitializeRoutes(router)
+
 	authConfig := kit.AuthenticationConfig{
-		AuthFunc:    handlers.HandleAuthentication,
+		AuthFunc:    auth.AuthenticateUser,
 		RedirectURL: "/login",
 	}
 

@@ -1,9 +1,10 @@
 package auth
 
 import (
-	"auth/app/db"
+	"AABBCCDD/app/db"
 	"cmp"
 	"database/sql"
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -69,8 +70,8 @@ func HandleAuthCreate(kit *kit.Kit) error {
 		return kit.Render(LoginForm(values, errors))
 	}
 
-	// todo: use the kit.Getenv instead of the comp thingy
-	skipVerify := cmp.Or(os.Getenv("SUPERKIT_AUTH_SKIP_VERIFY"), "false")
+	skipVerify := kit.Getenv("SUPERKIT_AUTH_SKIP_VERIFY", "false")
+	fmt.Println(skipVerify)
 	if skipVerify != "true" {
 		if user.EmailVerifiedAt.Equal(time.Time{}) {
 			errors.Add("verified", "please verify your email")
@@ -78,7 +79,7 @@ func HandleAuthCreate(kit *kit.Kit) error {
 		}
 	}
 
-	sessionExpiryStr := os.Getenv("SUPERKIT_AUTH_SESSION_EXPIRY_IN_HOURS")
+	sessionExpiryStr := kit.Getenv("SUPERKIT_AUTH_SESSION_EXPIRY_IN_HOURS", "48")
 	sessionExpiry, err := strconv.Atoi(sessionExpiryStr)
 	if err != nil {
 		sessionExpiry = 48
@@ -102,7 +103,7 @@ func HandleAuthCreate(kit *kit.Kit) error {
 	sess.Values["sessionToken"] = session.Token
 	sess.Save(kit.Request, kit.Response)
 
-	redirectURL := cmp.Or(os.Getenv("SUPERKIT_AUTH_REDIRECT_AFTER_LOGIN"), "/profile")
+	redirectURL := kit.Getenv("SUPERKIT_AUTH_REDIRECT_AFTER_LOGIN", "/profile")
 
 	return kit.Redirect(http.StatusSeeOther, redirectURL)
 }

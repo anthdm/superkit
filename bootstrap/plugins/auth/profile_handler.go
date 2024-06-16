@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"auth/app/db"
+	"AABBCCDD/app/db"
 	"fmt"
 
 	"github.com/anthdm/gothkit/kit"

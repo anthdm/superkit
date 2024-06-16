@@ -1,4 +1,4 @@
-package app
+package db
 
 import (
 	"log"
@@ -8,12 +8,16 @@ import (
 	"github.com/anthdm/gothkit/kit"
 
 	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/sqlitedialect"
 	"github.com/uptrace/bun/extra/bundebug"
 )
 
-var DB *bun.DB
+// I could not came up with a better naming for this.
+// Ideally, app should export a global variable called "DB"
+// but this will cause imports cycles for plugins.
+var Query *bun.DB
 
 func init() {
 	config := db.Config{
@@ -27,8 +31,8 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	DB = bun.NewDB(db, sqlitedialect.New())
+	Query = bun.NewDB(db, sqlitedialect.New())
 	if kit.IsDevelopment() {
-		DB.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(true)))
+		Query.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(true)))
 	}
 }

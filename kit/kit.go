@@ -92,6 +92,10 @@ func (kit *Kit) Render(c templ.Component) error {
 	return c.Render(kit.Request.Context(), kit.Response)
 }
 
+func (kit *Kit) Getenv(name string, def string) string {
+	return Getenv(name, def)
+}
+
 func Handler(h HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		kit := &Kit{
