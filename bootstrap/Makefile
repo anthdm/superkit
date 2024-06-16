@@ -8,7 +8,7 @@ endif
 # re-create _templ.txt files on change, then send reload event to browser. 
 # Default url: http://localhost:7331
 templ:
-	@templ generate --watch --proxy="http://localhost$(HTTP_LISTEN_ADDR)" --open-browser=false -v
+	@templ generate --watch --proxy="http://localhost$(HTTP_LISTEN_ADDR)" --open-browser=false
 
 # run air to detect any go file changes to re-build and re-run the server.
 server:

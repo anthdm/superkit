@@ -1,0 +1,50 @@
+package auth
+
+import (
+	"auth/app/views/layouts"
+	v "github.com/anthdm/gothkit/validate"
+	"fmt"
+)
+
+templ ProfileShow(formValues ProfileFormValues) {
+	@layouts.App() {
+		<div class="mt-32 flex flex-col gap-12">
+			<div class="flex flex-col gap-2">
+				<h1 class="text-4xl">Welcome, <span class="font-medium">{ formValues.FirstName } { formValues.LastName }</span></h1>
+				<div class="flex gap-4">
+					<a href="/" class="text-sm underline">back to home</a>
+					<button hx-delete="/logout" class="text-sm underline">sign me out</button>
+				</div>
+			</div>
+			@ProfileForm(formValues, v.Errors{})
+		</div>
+	}
+}
+
+templ ProfileForm(values ProfileFormValues, errors v.Errors) {
+	<form hx-put="/profile" class="w-full max-w-sm flex flex-col gap-6">
+		<input type="hidden" name="id" value={ fmt.Sprint(values.ID) }/>
+		<div class="flex flex-col gap-2">
+			<label for="firstName">First Name</label>
+			<input { inputAttrs(errors.Has("firstName"))... } name="firstName" id="firstName" value={ values.FirstName }/>
+			if errors.Has("firstName") {
+				<div class="text-red-500 text-xs">{ errors.Get("firstName")[0] }</div>
+			}
+		</div>
+		<div class="flex flex-col gap-2">
+			<label for="lastName">Last Name</label>
+			<input { inputAttrs(errors.Has("lastName"))... } name="lastName" id="lastName" value={ values.LastName }/>
+			if errors.Has("lastName") {
+				<div class="text-red-500 text-xs">{ errors.Get("lastName")[0] }</div>
+			}
+		</div>
+		<div class="flex flex-col gap-2">
+			<label for="email">Email</label>
+			<div { inputAttrs(false)... }>{ values.Email }</div>
+		</div>
+		<button { buttonAttrs()... }>Update profile</button>
+		if len(values.Success) > 0 {
+			<div>{ values.Success }</div>
+		}
+	</form>
+}

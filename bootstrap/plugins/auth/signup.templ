@@ -1,0 +1,96 @@
+package auth
+
+import (
+	v "github.com/anthdm/gothkit/validate"
+	"auth/app/views/layouts"
+	"auth/app/views/components"
+)
+
+type SignupIndexPageData struct {
+	FormValues SignupFormValues
+	FormErrors v.Errors
+}
+
+type SignupFormValues struct {
+	Email           string `form:"email"`
+	FirstName       string `form:"firstName"`
+	LastName        string `form:"lastName"`
+	Password        string `form:"password"`
+	PasswordConfirm string `form:"passwordConfirm"`
+}
+
+templ SignupIndex(data SignupIndexPageData) {
+	@layouts.BaseLayout() {
+		<div class="fixed top-6 right-6">
+			@components.ThemeSwitcher()
+		</div>
+		<div class="w-full justify-center">
+			<div class="mt-10 lg:mt-20">
+				<div class="max-w-md mx-auto border rounded-md shadow-sm py-12 px-6 flex flex-col gap-8">
+					<h2 class="text-center text-2xl font-medium">Signup</h2>
+					@SignupForm(data.FormValues, data.FormErrors)
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ SignupForm(values SignupFormValues, errors v.Errors) {
+	<form hx-post="/signup" class="flex flex-col gap-4">
+		<div class="flex flex-col gap-1">
+			<label for="email">Email *</label>
+			<input { inputAttrs(errors.Has("email"))... } name="email" id="email" value={ values.Email }/>
+			if errors.Has("email") {
+				<div class="text-red-500 text-xs">{ errors.Get("email")[0] }</div>
+			}
+		</div>
+		<div class="flex flex-col gap-1">
+			<label for="firstName">First Name *</label>
+			<input { inputAttrs(errors.Has("firstName"))... } name="firstName" id="firstName" value={ values.FirstName }/>
+			if errors.Has("fistName") {
+				<ul>
+					for _, err := range errors.Get("firstName") {
+						<li class="text-red-500 text-xs">{ err }</li>
+					}
+				</ul>
+			}
+		</div>
+		<div class="flex flex-col gap-1">
+			<label for="lastName">Last Name *</label>
+			<input { inputAttrs(errors.Has("lastName"))... } name="lastName" id="lastName" value={ values.LastName }/>
+			if errors.Has("lastName") {
+				<ul>
+					for _, err := range errors.Get("lastName") {
+						<li class="text-red-500 text-xs">{ err }</li>
+					}
+				</ul>
+			}
+		</div>
+		<div class="flex flex-col gap-1">
+			<label for="password">Password *</label>
+			<input { inputAttrs(errors.Has("password"))... } type="password" name="password" id="password"/>
+			if errors.Has("password") {
+				<ul>
+					for _, err := range errors.Get("password") {
+						<li class="text-red-500 text-xs">{ err }</li>
+					}
+				</ul>
+			}
+		</div>
+		<div class="flex flex-col gap-1">
+			<label for="passwordConfirm">Confirm Password *</label>
+			<input { inputAttrs(errors.Has("passwordConfirm"))... } type="password" name="passwordConfirm" id="passwordConfirm"/>
+			if errors.Has("passwordConfirm") {
+				<div class="text-red-500 text-xs">{ errors.Get("passwordConfirm")[0] }</div>
+			}
+		</div>
+		<button { buttonAttrs()... }>
+			Signup
+		</button>
+		<a class="text-sm underline" href="/login">Already have an account? Login here.</a>
+	</form>
+}
+
+templ ConfirmEmail(email string) {
+	<div class="text-sm">An email confirmation link has been sent to: <span class="underline font-medium">{ email }</span></div>
+}
