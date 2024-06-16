@@ -1,10 +1,10 @@
-# GOTHKIT
-Create interactive applications with Golang, HTMX, and Templ
+# SUPERKIT
+Build high-performance apps swiftly with minimal team resources in GO.
 
 > The project (for now) is in the **experimental** phase.
 
 ## Table of content
-- [GOTHKIT](#gothkit)
+- [SUPERKIT](#superkit)
 	- [Table of content](#table-of-content)
 - [Installation](#installation)
 - [Getting started](#getting-started)
