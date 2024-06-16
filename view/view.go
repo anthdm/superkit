@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/anthdm/gothkit/kit"
-	"github.com/anthdm/gothkit/kit/middleware"
+	"github.com/anthdm/superkit/kit"
+	"github.com/anthdm/superkit/kit/middleware"
 )
 
 // Asset is view helper that returns the full asset path as a

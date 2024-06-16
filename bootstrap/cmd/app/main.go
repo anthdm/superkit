@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/anthdm/gothkit/kit"
+	"github.com/anthdm/superkit/kit"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 )

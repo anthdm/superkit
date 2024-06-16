@@ -3,7 +3,7 @@ package handlers
 import (
 	"AABBCCDD/app/types"
 
-	"github.com/anthdm/gothkit/kit"
+	"github.com/anthdm/superkit/kit"
 )
 
 func HandleAuthentication(kit *kit.Kit) (kit.Auth, error) {

@@ -16,7 +16,7 @@ import (
 const (
 	replaceID           = "AABBCCDD"
 	bootstrapFolderName = "bootstrap"
-	reponame            = "https://github.com/anthdm/gothkit.git"
+	reponame            = "https://github.com/anthdm/superkit.git"
 )
 
 func main() {
@@ -26,18 +26,18 @@ func main() {
 		fmt.Println()
 		fmt.Println("install requires your project name as the first argument")
 		fmt.Println()
-		fmt.Println("\tgo run gothkit/install.go [your_project_name]")
+		fmt.Println("\tgo run superkit/install.go [your_project_name]")
 		fmt.Println()
 		os.Exit(1)
 	}
 
 	projectName := args[0]
 
-	// check if gothkit folder already exists, if so, delete
-	_, err := os.Stat("gothkit")
+	// check if superkit folder already exists, if so, delete
+	_, err := os.Stat("superkit")
 	if !os.IsNotExist(err) {
-		fmt.Println("-- deleting gothkit folder cause its already present")
-		if err := os.RemoveAll("gothkit"); err != nil {
+		fmt.Println("-- deleting superkit folder cause its already present")
+		if err := os.RemoveAll("superkit"); err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -49,7 +49,7 @@ func main() {
 	}
 
 	fmt.Println("-- renaming bootstrap ->", projectName)
-	if err := os.Rename(path.Join("gothkit", bootstrapFolderName), projectName); err != nil {
+	if err := os.Rename(path.Join("superkit", bootstrapFolderName), projectName); err != nil {
 		log.Fatal(err)
 	}
 

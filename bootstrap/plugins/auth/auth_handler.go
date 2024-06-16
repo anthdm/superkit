@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/anthdm/gothkit/kit"
-	v "github.com/anthdm/gothkit/validate"
+	"github.com/anthdm/superkit/kit"
+	v "github.com/anthdm/superkit/validate"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )

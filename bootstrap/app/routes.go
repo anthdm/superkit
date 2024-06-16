@@ -6,8 +6,8 @@ import (
 	"AABBCCDD/plugins/auth"
 	"log/slog"
 
-	"github.com/anthdm/gothkit/kit"
-	"github.com/anthdm/gothkit/kit/middleware"
+	"github.com/anthdm/superkit/kit"
+	"github.com/anthdm/superkit/kit/middleware"
 	"github.com/go-chi/chi/v5"
 
 	chimiddleware "github.com/go-chi/chi/v5/middleware"

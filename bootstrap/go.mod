@@ -4,7 +4,7 @@ go 1.22.4
 
 require (
 	github.com/a-h/templ v0.2.707
-	github.com/anthdm/gothkit v0.0.0-20240616091834-f28da98d2790
+	github.com/anthdm/superkit v0.0.0-20240616091834-f28da98d2790
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
@@ -29,4 +29,4 @@ require (
 )
 
 // uncomment for local development on the superkit core.
-// replace github.com/anthdm/gothkit => ../
+// replace github.com/anthdm/superkit => ../

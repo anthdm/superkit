@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"github.com/anthdm/gothkit/kit"
+	"github.com/anthdm/superkit/kit"
 	"github.com/go-chi/chi/v5"
 )
 

@@ -32,7 +32,7 @@ Build high-performance apps swiftly with minimal team resources in GO.
 # Installation
 Create your SUPERKIT project in a single command:
 ```
-go run github.com/anthdm/gothkit@master [yourprojectname]
+go run github.com/anthdm/superkit@master [yourprojectname]
 ```
 
 You can now navigate to your project:
@@ -101,7 +101,7 @@ make db-seed
 This command will run the seed file located at `cmd/scripts/seed/main.go`
 
 # Creating views with Templ 
-Gothkit uses Templ as its templating engine. Templ allows you to create type safe view components that renders fragments of HTML. In-depth information about Templ can be found here:
+superkit uses Templ as its templating engine. Templ allows you to create type safe view components that renders fragments of HTML. In-depth information about Templ can be found here:
 [Templ documentation](https://templ.guide)
 
 # Validations
@@ -111,7 +111,7 @@ todo
 ## Testing handlers
 
 # Create a production release
-Gothkit will compile your whole application including its assets into a single binary. To build your application for production you can run the following command:
+superkit will compile your whole application including its assets into a single binary. To build your application for production you can run the following command:
 ```
 make build
 ```

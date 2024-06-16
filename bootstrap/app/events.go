@@ -3,7 +3,7 @@ package app
 import (
 	"AABBCCDD/app/events"
 
-	"github.com/anthdm/gothkit/event"
+	"github.com/anthdm/superkit/event"
 )
 
 // Events are functions that are handled in separate goroutines.

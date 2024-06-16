@@ -1,4 +1,4 @@
-module github.com/anthdm/gothkit
+module github.com/anthdm/superkit
 
 go 1.22.0
 

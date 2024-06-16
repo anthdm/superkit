@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/anthdm/gothkit/db"
-	"github.com/anthdm/gothkit/kit"
+	"github.com/anthdm/superkit/db"
+	"github.com/anthdm/superkit/kit"
 
 	_ "github.com/mattn/go-sqlite3"
 
