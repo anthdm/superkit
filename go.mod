@@ -4,7 +4,7 @@ go 1.22.0
 
 require (
 	github.com/a-h/templ v0.2.707
-	github.com/gorilla/sessions v1.2.2
+	github.com/gorilla/sessions v1.3.0
 	github.com/stretchr/testify v1.9.0
 )
 
