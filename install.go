@@ -4,13 +4,11 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"io/fs"
 	"log"
 	"os"
-	"os/exec"
 	"path"
-	"path/filepath"
-	"strings"
+
+	"github.com/4lxprime/gitdl"
 )
 
 const (
@@ -42,46 +40,21 @@ func main() {
 		}
 	}
 
-	fmt.Println("-- cloning", reponame)
-	clone := exec.Command("git", "clone", reponame)
-	if err := clone.Run(); err != nil {
-		log.Fatal(err)
-	}
+	secret := generateSecret()
 
-	fmt.Println("-- renaming bootstrap ->", projectName)
-	if err := os.Rename(path.Join("superkit", bootstrapFolderName), projectName); err != nil {
-		log.Fatal(err)
-	}
-
-	err = filepath.Walk(path.Join(projectName), func(fullPath string, info fs.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			return nil
-		}
-
-		b, err := os.ReadFile(fullPath)
-		if err != nil {
-			return err
-		}
-
-		contentStr := string(b)
-		if strings.Contains(contentStr, replaceID) {
-			replacedContent := strings.ReplaceAll(contentStr, replaceID, projectName)
-			file, err := os.OpenFile(fullPath, os.O_WRONLY|os.O_TRUNC, 0644)
-			if err != nil {
-				return err
-			}
-			defer file.Close()
-			_, err = file.WriteString(replacedContent)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-	if err != nil {
+	fmt.Println("-- setting up bootstrap")
+	fmt.Println("-- generating secure secret")
+	if err = gitdl.DownloadGit(
+		"anthdm/superkit",
+		"bootstrap",
+		projectName,
+		gitdl.WithBranch("master"),
+		gitdl.WithReplace(gitdl.Map{
+			replaceID:        projectName,
+			"{{app_secret}}": secret,
+		}),
+		//gitdl.WithLogs,
+	); err != nil {
 		log.Fatal(err)
 	}
 
@@ -93,23 +66,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("-- generating secure secret")
-	pathToDotEnv := path.Join(projectName, ".env")
-	b, err := os.ReadFile(pathToDotEnv)
-	if err != nil {
-		log.Fatal(err)
-	}
-	secret := generateSecret()
-	replacedContent := strings.Replace(string(b), "{{app_secret}}", secret, -1)
-	file, err := os.OpenFile(pathToDotEnv, os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-	_, err = file.WriteString(replacedContent)
-	if err != nil {
-		log.Fatal(err)
-	}
 	fmt.Printf("-- project (%s) successfully installed!\n", projectName)
 }
 
