@@ -2,7 +2,6 @@ package auth
 
 import (
 	"AABBCCDD/app/db"
-	"cmp"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -10,8 +9,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/anthdm/superkit/event"
 	"github.com/anthdm/superkit/kit"
+	"github.com/anthdm/superkit/mail"
 	v "github.com/anthdm/superkit/validate"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -39,7 +41,7 @@ var signupSchema = v.Schema{
 
 func HandleAuthIndex(kit *kit.Kit) error {
 	if kit.Auth().Check() {
-		redirectURL := cmp.Or(os.Getenv("SUPERKIT_AUTH_REDIRECT_AFTER_LOGIN"), "/profile")
+		redirectURL := kit.Getenv("SUPERKIT_AUTH_REDIRECT_AFTER_LOGIN", "/profile")
 		return kit.Redirect(http.StatusSeeOther, redirectURL)
 	}
 	return kit.Render(AuthIndex(AuthIndexPageData{}))
@@ -71,7 +73,6 @@ func HandleAuthCreate(kit *kit.Kit) error {
 	}
 
 	skipVerify := kit.Getenv("SUPERKIT_AUTH_SKIP_VERIFY", "false")
-	fmt.Println(skipVerify)
 	if skipVerify != "true" {
 		if user.EmailVerifiedAt.Equal(time.Time{}) {
 			errors.Add("verified", "please verify your email")
@@ -142,7 +143,87 @@ func HandleSignupCreate(kit *kit.Kit) error {
 	if err != nil {
 		return err
 	}
+	token, err := createVerificationToken(user.ID)
+	if err != nil {
+		return err
+	}
+	event.Emit("user.signup", user)
+	mail.NOOPMailer{}.SendEmail(kit.Request.Context(), mail.Contents{
+		Title: token,
+	})
 	return kit.Render(ConfirmEmail(user.Email))
+}
+
+func createVerificationToken(userID int) (string, error) {
+	expiryStr := kit.Getenv("SUPERKIT_AUTH_EMAIL_VERIFICATION_EXPIRY_IN_HOURS", "1")
+	expiry, err := strconv.Atoi(expiryStr)
+	if err != nil {
+		expiry = 1
+	}
+
+	claims := jwt.RegisteredClaims{
+		Subject:   fmt.Sprint(userID),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(expiry))),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString([]byte(os.Getenv("SUPERKIT_SECRET")))
+}
+
+func HandleEmailVerify(kit *kit.Kit) error {
+	tokenStr := kit.Request.URL.Query().Get("token")
+	if len(tokenStr) == 0 {
+		return kit.Render(EmailVerificationError("invalid verification token"))
+	}
+
+	token, err := jwt.ParseWithClaims(
+		tokenStr, &jwt.RegisteredClaims{}, func(token *jwt.Token) (any, error) {
+			return []byte(os.Getenv("SUPERKIT_SECRET")), nil
+		}, jwt.WithLeeway(5*time.Second))
+	if err != nil {
+		return err
+	}
+	if !token.Valid {
+		return kit.Render(EmailVerificationError("invalid verification token"))
+	}
+
+	claims, ok := token.Claims.(*jwt.RegisteredClaims)
+	if !ok {
+		return kit.Render(EmailVerificationError("invalid verification token"))
+	}
+	if claims.ExpiresAt.Time.Before(time.Now()) {
+		return kit.Render(EmailVerificationError("Email verification token expired"))
+	}
+
+	userID, err := strconv.Atoi(claims.Subject)
+	if err != nil {
+		return kit.Render(EmailVerificationError("Email verification token expired"))
+	}
+
+	var user User
+	err = db.Query.NewSelect().
+		Model(&user).
+		Where("id = ?", userID).
+		Scan(kit.Request.Context())
+	if err != nil {
+		return err
+	}
+
+	if user.EmailVerifiedAt.After(time.Time{}) {
+		return kit.Render(EmailVerificationError("Email already verified"))
+	}
+
+	user.EmailVerifiedAt = time.Now()
+	_, err = db.Query.NewUpdate().
+		Model(&user).
+		WherePK().
+		Exec(kit.Request.Context())
+	if err != nil {
+		return err
+	}
+
+	return kit.Redirect(http.StatusSeeOther, "/login")
 }
 
 func AuthenticateUser(kit *kit.Kit) (kit.Auth, error) {
@@ -162,12 +243,8 @@ func AuthenticateUser(kit *kit.Kit) (kit.Auth, error) {
 	if err != nil {
 		return auth, nil
 	}
-	// TODO: do we really need to check if the user is verified
-	// even if we check that already in the login process.
-	// if session.User.EmailVerifiedAt.Equal(time.Time{}) {
-	// 	return Auth{}, nil
-	// }
 	return Auth{
+
 		LoggedIn: true,
 		UserID:   session.User.ID,
 		Email:    session.User.Email,

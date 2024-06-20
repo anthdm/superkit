@@ -11,6 +11,8 @@ func InitializeRoutes(router chi.Router) {
 		RedirectURL: "/login",
 	}
 
+	router.Get("/email/verify", kit.Handler(HandleEmailVerify))
+
 	router.Group(func(auth chi.Router) {
 		auth.Use(kit.WithAuthentication(authConfig, false))
 		auth.Get("/login", kit.Handler(HandleAuthIndex))
@@ -19,6 +21,7 @@ func InitializeRoutes(router chi.Router) {
 
 		auth.Get("/signup", kit.Handler(HandleSignupIndex))
 		auth.Post("/signup", kit.Handler(HandleSignupCreate))
+
 	})
 
 	router.Group(func(auth chi.Router) {
