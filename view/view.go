@@ -9,7 +9,7 @@ import (
 	"github.com/anthdm/superkit/kit/middleware"
 )
 
-// Asset is view helper that returns the full asset path as a
+// Asset is a view helper that returns the full asset path as a
 // string based on the given asset name.
 //
 //	view.Asset("styles.css") // => /public/assets/styles.css.
@@ -17,27 +17,28 @@ func Asset(name string) string {
 	return fmt.Sprintf("/public/assets/%s", name)
 }
 
-// Auth is a view helper function that returns the current Auth.
-// If Auth is not set a default auth will be returned
-//
-//	view.Auth(ctx)
-func Auth(ctx context.Context) kit.Auth {
-	value, ok := ctx.Value(kit.AuthKey{}).(kit.Auth)
+// getContextValue is a helper function to retrieve a value from the context.
+// It returns the value if present, otherwise returns the provided default value.
+func getContextValue[T any](ctx context.Context, key interface{}, defaultValue T) T {
+	value, ok := ctx.Value(key).(T)
 	if !ok {
-		return kit.DefaultAuth{}
+		return defaultValue
 	}
 	return value
 }
 
+// Auth is a view helper function that returns the current Auth.
+// If Auth is not set, a default Auth will be returned.
+//
+//	view.Auth(ctx)
+func Auth(ctx context.Context) kit.Auth {
+	return getContextValue(ctx, kit.AuthKey{}, kit.DefaultAuth{})
+}
+
 // URL is a view helper that returns the current URL.
-// The request path can be acccessed with:
+// The request path can be accessed with:
 //
 //	view.URL(ctx).Path // => ex. /login
 func URL(ctx context.Context) *url.URL {
-	value, ok := ctx.Value(middleware.RequestURLKey{}).(*url.URL)
-	if !ok {
-		return &url.URL{}
-	}
-	return value
-
+	return getContextValue(ctx, middleware.RequestURLKey{}, &url.URL{})
 }
