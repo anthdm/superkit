@@ -3,7 +3,7 @@ module github.com/anthdm/superkit
 go 1.22.2
 
 require (
-	github.com/4lxprime/gitdl v0.0.0-20240619153508-50e6f992ff80
+	github.com/4lxprime/gitdl v0.0.0-20240620095131-2e04094de04a
 	github.com/a-h/templ v0.2.707
 	github.com/gorilla/sessions v1.3.0
 	github.com/stretchr/testify v1.9.0
