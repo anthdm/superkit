@@ -15,5 +15,5 @@ import (
 
 // Register your events here.
 func RegisterEvents() {
-	event.Subscribe("foo.bar", events.HandleFooEvent)
+	event.Subscribe("auth.signup", events.HandleUserSignup)
 }

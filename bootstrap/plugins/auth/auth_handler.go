@@ -3,15 +3,12 @@ package auth
 import (
 	"AABBCCDD/app/db"
 	"database/sql"
-	"fmt"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
 
-	"github.com/anthdm/superkit/event"
 	"github.com/anthdm/superkit/kit"
-	"github.com/anthdm/superkit/mail"
 	v "github.com/anthdm/superkit/validate"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -27,27 +24,15 @@ var authSchema = v.Schema{
 	"password": v.Rules(v.Required),
 }
 
-var signupSchema = v.Schema{
-	"email": v.Rules(v.Email),
-	"password": v.Rules(
-		v.ContainsSpecial,
-		v.ContainsUpper,
-		v.Min(7),
-		v.Max(50),
-	),
-	"firstName": v.Rules(v.Min(2), v.Max(50)),
-	"lastName":  v.Rules(v.Min(2), v.Max(50)),
-}
-
-func HandleAuthIndex(kit *kit.Kit) error {
+func HandleLoginIndex(kit *kit.Kit) error {
 	if kit.Auth().Check() {
 		redirectURL := kit.Getenv("SUPERKIT_AUTH_REDIRECT_AFTER_LOGIN", "/profile")
 		return kit.Redirect(http.StatusSeeOther, redirectURL)
 	}
-	return kit.Render(AuthIndex(AuthIndexPageData{}))
+	return kit.Render(LoginIndex(LoginIndexPageData{}))
 }
 
-func HandleAuthCreate(kit *kit.Kit) error {
+func HandleLoginCreate(kit *kit.Kit) error {
 	var values LoginFormValues
 	errors, ok := v.Request(kit.Request, &values, authSchema)
 	if !ok {
@@ -109,7 +94,7 @@ func HandleAuthCreate(kit *kit.Kit) error {
 	return kit.Redirect(http.StatusSeeOther, redirectURL)
 }
 
-func HandleAuthDelete(kit *kit.Kit) error {
+func HandleLoginDelete(kit *kit.Kit) error {
 	sess := kit.GetSession(userSessionName)
 	defer func() {
 		sess.Values = map[any]any{}
@@ -123,52 +108,6 @@ func HandleAuthDelete(kit *kit.Kit) error {
 		return err
 	}
 	return kit.Redirect(http.StatusSeeOther, "/")
-}
-
-func HandleSignupIndex(kit *kit.Kit) error {
-	return kit.Render(SignupIndex(SignupIndexPageData{}))
-}
-
-func HandleSignupCreate(kit *kit.Kit) error {
-	var values SignupFormValues
-	errors, ok := v.Request(kit.Request, &values, signupSchema)
-	if !ok {
-		return kit.Render(SignupForm(values, errors))
-	}
-	if values.Password != values.PasswordConfirm {
-		errors.Add("passwordConfirm", "passwords do not match")
-		return kit.Render(SignupForm(values, errors))
-	}
-	user, err := createUserFromFormValues(values)
-	if err != nil {
-		return err
-	}
-	token, err := createVerificationToken(user.ID)
-	if err != nil {
-		return err
-	}
-	event.Emit("user.signup", user)
-	mail.NOOPMailer{}.SendEmail(kit.Request.Context(), mail.Contents{
-		Title: token,
-	})
-	return kit.Render(ConfirmEmail(user.Email))
-}
-
-func createVerificationToken(userID int) (string, error) {
-	expiryStr := kit.Getenv("SUPERKIT_AUTH_EMAIL_VERIFICATION_EXPIRY_IN_HOURS", "1")
-	expiry, err := strconv.Atoi(expiryStr)
-	if err != nil {
-		expiry = 1
-	}
-
-	claims := jwt.RegisteredClaims{
-		Subject:   fmt.Sprint(userID),
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(expiry))),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	return token.SignedString([]byte(os.Getenv("SUPERKIT_SECRET")))
 }
 
 func HandleEmailVerify(kit *kit.Kit) error {

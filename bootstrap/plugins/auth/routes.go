@@ -15,9 +15,9 @@ func InitializeRoutes(router chi.Router) {
 
 	router.Group(func(auth chi.Router) {
 		auth.Use(kit.WithAuthentication(authConfig, false))
-		auth.Get("/login", kit.Handler(HandleAuthIndex))
-		auth.Post("/login", kit.Handler(HandleAuthCreate))
-		auth.Delete("/logout", kit.Handler(HandleAuthDelete))
+		auth.Get("/login", kit.Handler(HandleLoginIndex))
+		auth.Post("/login", kit.Handler(HandleLoginCreate))
+		auth.Delete("/logout", kit.Handler(HandleLoginDelete))
 
 		auth.Get("/signup", kit.Handler(HandleSignupIndex))
 		auth.Post("/signup", kit.Handler(HandleSignupCreate))

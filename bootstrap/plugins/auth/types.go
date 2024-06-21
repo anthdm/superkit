@@ -8,6 +8,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// UserWithVerificationToken is a struct that will be sent over the
+// auth.signup event. It holds the User struct and the Verification token string.
+type UserWithVerificationToken struct {
+	User  User
+	Token string
+}
+
 type Auth struct {
 	UserID   int
 	Email    string

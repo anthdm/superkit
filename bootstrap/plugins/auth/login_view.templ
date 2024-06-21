@@ -7,7 +7,7 @@ import (
 	"AABBCCDD/app/views/components"
 )
 
-type AuthIndexPageData struct {
+type LoginIndexPageData struct {
 	FormValues LoginFormValues
 	FormErrors v.Errors
 }
@@ -17,7 +17,7 @@ type LoginFormValues struct {
 	Password string `form:"password"`
 }
 
-templ AuthIndex(data AuthIndexPageData) {
+templ LoginIndex(data LoginIndexPageData) {
 	@layouts.BaseLayout() {
 		<div class="fixed top-6 right-6">
 			@components.ThemeSwitcher()
