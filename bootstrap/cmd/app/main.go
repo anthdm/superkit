@@ -2,6 +2,7 @@ package main
 
 import (
 	"AABBCCDD/app"
+	"AABBCCDD/app/conf"
 	"AABBCCDD/public"
 	"fmt"
 	"log"
@@ -34,7 +35,7 @@ func main() {
 	app.InitializeRoutes(router)
 	app.RegisterEvents()
 
-	listenAddr := os.Getenv("HTTP_LISTEN_ADDR")
+	listenAddr := conf.Env.HTTP_LISTEN_ADDR
 	// In development link the full Templ proxy url.
 	url := "http://localhost:7331"
 	if kit.IsProduction() {
