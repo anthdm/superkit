@@ -8,6 +8,19 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Event name constants
+const (
+	UserSignupEvent         = "auth.signup"
+	ResendVerificationEvent = "auth.resend.verification"
+)
+
+// UserWithVerificationToken is a struct that will be sent over the
+// auth.signup event. It holds the User struct and the Verification token string.
+type UserWithVerificationToken struct {
+	User  User
+	Token string
+}
+
 type Auth struct {
 	UserID   int
 	Email    string

@@ -68,6 +68,10 @@ func (kit *Kit) Redirect(status int, url string) error {
 	return nil
 }
 
+func (kit *Kit) FormValue(name string) string {
+	return kit.Request.PostFormValue(name)
+}
+
 func (kit *Kit) JSON(status int, v any) error {
 	kit.Response.WriteHeader(status)
 	kit.Response.Header().Set("Content-Type", "application/json")

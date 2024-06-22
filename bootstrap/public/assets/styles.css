@@ -878,6 +878,11 @@ body {
   line-height: 1.25rem;
 }
 
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
 .text-xs {
   font-size: 0.75rem;
   line-height: 1rem;
@@ -1005,12 +1010,12 @@ body {
     margin-top: 5rem;
   }
 
-  .lg\:mt-40 {
-    margin-top: 10rem;
-  }
-
   .lg\:mt-32 {
     margin-top: 8rem;
+  }
+
+  .lg\:mt-40 {
+    margin-top: 10rem;
   }
 
   .lg\:text-4xl {

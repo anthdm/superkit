@@ -22,9 +22,16 @@ func InitializeMiddleware(router *chi.Mux) {
 
 // Define your routes in here
 func InitializeRoutes(router *chi.Mux) {
-	// Authentication plugin:
+	// Authentication plugin
+	//
+	// By default the auth plugin is active. To disable the auth plugin
+	// you will need to pass your own handler in the `AuthFunc`` field
+	// of the `kit.AuthenticationConfig`.
+	//  authConfig := kit.AuthenticationConfig{
+	//      AuthFunc: YourAuthHandler,
+	//      RedirectURL: "/login",
+	//  }
 	auth.InitializeRoutes(router)
-
 	authConfig := kit.AuthenticationConfig{
 		AuthFunc:    auth.AuthenticateUser,
 		RedirectURL: "/login",
