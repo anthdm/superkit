@@ -4,6 +4,8 @@ import (
 	v "github.com/anthdm/superkit/validate"
 	"AABBCCDD/app/views/layouts"
 	"AABBCCDD/app/views/components"
+
+	"fmt"
 )
 
 type SignupIndexPageData struct {
@@ -91,6 +93,10 @@ templ SignupForm(values SignupFormValues, errors v.Errors) {
 	</form>
 }
 
-templ ConfirmEmail(email string) {
-	<div class="text-sm">An email confirmation link has been sent to: <span class="underline font-medium">{ email }</span></div>
+templ ConfirmEmail(user User) {
+	<form hx-post="/resend-email-verification" class="flex flex-col gap-4 text-sm">
+		<input type="hidden" name="userID" value={ fmt.Sprint(user.ID) }/>
+		<div>An email confirmation link has been sent to: <span class="underline font-medium">{ user.Email }</span></div>
+		<div>Trouble receiving the verification code? <button class="underline font-medium cursor-pointer">Resend verification code</button></div>
+	</form>
 }

@@ -2,6 +2,7 @@ package app
 
 import (
 	"AABBCCDD/app/events"
+	"AABBCCDD/plugins/auth"
 
 	"github.com/anthdm/superkit/event"
 )
@@ -15,5 +16,6 @@ import (
 
 // Register your events here.
 func RegisterEvents() {
-	event.Subscribe("foo.bar", events.HandleFooEvent)
+	event.Subscribe(auth.UserSignupEvent, events.OnUserSignup)
+	event.Subscribe(auth.ResendVerificationEvent, events.OnResendVerificationToken)
 }
