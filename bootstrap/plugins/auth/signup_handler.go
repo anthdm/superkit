@@ -1,7 +1,9 @@
 package auth
 
 import (
+	"AABBCCDD/app/db"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -46,11 +48,46 @@ func HandleSignupCreate(kit *kit.Kit) error {
 	if err != nil {
 		return err
 	}
-	event.Emit("auth.signup", UserWithVerificationToken{
+	event.Emit(UserSignupEvent, UserWithVerificationToken{
 		Token: token,
 		User:  user,
 	})
-	return kit.Render(ConfirmEmail(user.Email))
+	return kit.Render(ConfirmEmail(user))
+}
+
+func HandleResendVerificationCode(kit *kit.Kit) error {
+	idstr := kit.FormValue("userID")
+	id, err := strconv.Atoi(idstr)
+	if err != nil {
+		return err
+	}
+
+	var user User
+	err = db.Query.NewSelect().
+		Model(&user).
+		Where("id = ?", id).
+		Scan(kit.Request.Context())
+	if err != nil {
+		return kit.Text(http.StatusOK, "An unexpected error occured")
+	}
+
+	if user.EmailVerifiedAt.After(time.Time{}) {
+		return kit.Text(http.StatusOK, "Email already verified!")
+	}
+
+	token, err := createVerificationToken(id)
+	if err != nil {
+		return kit.Text(http.StatusOK, "An unexpected error occured")
+	}
+
+	event.Emit(ResendVerificationEvent, UserWithVerificationToken{
+		User:  user,
+		Token: token,
+	})
+
+	msg := fmt.Sprintf("A new verification token has been sent to %s", user.Email)
+
+	return kit.Text(http.StatusOK, msg)
 }
 
 func createVerificationToken(userID int) (string, error) {

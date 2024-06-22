@@ -12,6 +12,7 @@ func InitializeRoutes(router chi.Router) {
 	}
 
 	router.Get("/email/verify", kit.Handler(HandleEmailVerify))
+	router.Post("/resend-email-verification", kit.Handler(HandleResendVerificationCode))
 
 	router.Group(func(auth chi.Router) {
 		auth.Use(kit.WithAuthentication(authConfig, false))
