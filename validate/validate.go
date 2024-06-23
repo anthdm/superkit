@@ -39,7 +39,7 @@ func (e Errors) Has(field string) bool {
 // Schema represents a validation schema.
 type Schema map[string][]RuleSet
 
-// Merge merges the two given schemas returning a new Schema.
+// Merge merges the two given schemas, returning a new Schema.
 func Merge(schema, other Schema) Schema {
 	newSchema := Schema{}
 	maps.Copy(newSchema, schema)
@@ -75,9 +75,14 @@ func Request(r *http.Request, data any, schema Schema) (Errors, bool) {
 func validate(data any, schema Schema, errors Errors) (Errors, bool) {
 	ok := true
 	for fieldName, ruleSets := range schema {
-		// Uppercase the field name so we never check un-exported fields
-		fieldName = string(unicode.ToUpper(rune(fieldName[0]))) + fieldName[1:]
-		fieldValue := getFieldValueByName(data, fieldName)
+		// Uppercase the field name so we never check un-exported fields.
+		// But we need to watch out for member fields that are uppercased by
+		// the user. For example (URL, ID, ...)
+		if !isUppercase(fieldName) {
+			fieldName = string(unicode.ToUpper(rune(fieldName[0]))) + fieldName[1:]
+		}
+
+		fieldValue := getFieldAndTagByName(data, fieldName)
 		for _, set := range ruleSets {
 			set.FieldValue = fieldValue
 			set.FieldName = fieldName
@@ -98,7 +103,7 @@ func validate(data any, schema Schema, errors Errors) (Errors, bool) {
 	return errors, ok
 }
 
-func getFieldValueByName(v any, name string) any {
+func getFieldAndTagByName(v any, name string) any {
 	val := reflect.ValueOf(v)
 	if val.Kind() == reflect.Ptr {
 		val = val.Elem()
@@ -167,4 +172,13 @@ func parseRequest(r *http.Request, v any) error {
 
 	}
 	return nil
+}
+
+func isUppercase(s string) bool {
+	for _, ch := range s {
+		if !unicode.IsUpper(rune(ch)) {
+			return false
+		}
+	}
+	return true
 }
