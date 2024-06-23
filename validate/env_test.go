@@ -33,6 +33,11 @@ func TestDefault(t *testing.T) {
 	os.Setenv("TEST2", "world")
 	val = Env[string]("TEST2", Rules(Required), "hello")
 	assert.Equal(t, "world", val)
+
+	assert.Panics(t, func() {
+		os.Setenv("TEST2", "1")
+		_ = Env[string]("TEST2", Rules(Min(4)))
+	})
 }
 
 func TestInt(t *testing.T) {
