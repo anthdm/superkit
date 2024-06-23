@@ -110,17 +110,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	if err := exec.Command("cd", projectName).Run(); err != nil {
-		log.Fatal(err)
-	}
-	if err := exec.Command("go", "clean", "-modcache").Run(); err != nil {
-		log.Fatal(err)
-	}
-	if err := exec.Command("go", "get", "-u", "./...").Run(); err != nil {
-		log.Fatal(err)
-	}
-
 	fmt.Printf("-- project (%s) successfully installed!\n", projectName)
 }
 
