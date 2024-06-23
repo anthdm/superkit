@@ -11,7 +11,7 @@ var Env = struct {
 	HTTP_LISTEN_ADDR string
 	SUPERKIT_SECRET  string
 }{
-	SUPERKIT_ENV:     v.Env("SUPERKIT_ENV", v.In([]string{"development", "staging", "production"})).Default("development").Validate(),
-	HTTP_LISTEN_ADDR: v.Env("HTTP_LISTEN_ADDR", v.Min(3)).Default(":3000").Validate(),
-	SUPERKIT_SECRET:  v.Env("SUPERKIT_SECRET", v.Required, v.Min(32)).Validate(),
+	SUPERKIT_ENV:     v.Env[string]("SUPERKIT_ENV", v.Rules(v.In([]string{"development", "staging", "production"})), "development"),
+	HTTP_LISTEN_ADDR: v.Env[string]("HTTP_LISTEN_ADDR", v.Rules(v.Min(3)), ":3000"),
+	SUPERKIT_SECRET:  v.Env[string]("SUPERKIT_SECRET", v.Required, v.Rules(v.Min(32))),
 }
