@@ -2,7 +2,7 @@ package types
 
 // AuthUser represents an user that might be authenticated.
 type AuthUser struct {
-	ID       int
+	ID       uint
 	Email    string
 	LoggedIn bool
 }

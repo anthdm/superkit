@@ -153,12 +153,18 @@ func parseRequest(r *http.Request, v any) error {
 				}
 			case reflect.String:
 				fieldVal.SetString(formValue)
-			case reflect.Int:
+			case reflect.Int, reflect.Int32, reflect.Int64:
 				intVal, err := strconv.Atoi(formValue)
 				if err != nil {
 					return fmt.Errorf("failed to parse int: %v", err)
 				}
 				fieldVal.SetInt(int64(intVal))
+			case reflect.Uint, reflect.Uint32, reflect.Uint64:
+				intVal, err := strconv.Atoi(formValue)
+				if err != nil {
+					return fmt.Errorf("failed to parse int: %v", err)
+				}
+				fieldVal.SetUint(uint64(intVal))
 			case reflect.Float64:
 				floatVal, err := strconv.ParseFloat(formValue, 64)
 				if err != nil {

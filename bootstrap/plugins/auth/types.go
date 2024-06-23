@@ -2,10 +2,11 @@ package auth
 
 import (
 	"AABBCCDD/app/db"
-	"context"
+	"database/sql"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 // Event name constants
@@ -22,7 +23,7 @@ type UserWithVerificationToken struct {
 }
 
 type Auth struct {
-	UserID   int
+	UserID   uint
 	Email    string
 	LoggedIn bool
 }
@@ -32,12 +33,13 @@ func (auth Auth) Check() bool {
 }
 
 type User struct {
-	ID              int `bun:"id,pk,autoincrement"`
+	gorm.Model
+
 	Email           string
 	FirstName       string
 	LastName        string
 	PasswordHash    string
-	EmailVerifiedAt time.Time
+	EmailVerifiedAt sql.NullTime
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 }
@@ -52,22 +54,19 @@ func createUserFromFormValues(values SignupFormValues) (User, error) {
 		FirstName:    values.FirstName,
 		LastName:     values.LastName,
 		PasswordHash: string(hash),
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
 	}
-	_, err = db.Query.NewInsert().Model(&user).Exec(context.Background())
-	return user, err
+	result := db.Get().Create(&user)
+	return user, result.Error
 }
 
 type Session struct {
-	ID          int `bun:"id,pk,autoincrement"`
-	UserID      int
-	Token       string
-	IPAddress   string
-	UserAgent   string
-	ExpiresAt   time.Time
-	LastLoginAt time.Time
-	CreatedAt   time.Time
+	gorm.Model
 
-	User User `bun:"rel:belongs-to,join:user_id=id"`
+	UserID    uint
+	Token     string
+	IPAddress string
+	UserAgent string
+	ExpiresAt time.Time
+	CreatedAt time.Time
+	User      User
 }

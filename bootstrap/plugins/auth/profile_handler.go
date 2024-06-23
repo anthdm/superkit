@@ -14,7 +14,7 @@ var profileSchema = v.Schema{
 }
 
 type ProfileFormValues struct {
-	ID        int    `form:"id"`
+	ID        uint   `form:"id"`
 	FirstName string `form:"firstName"`
 	LastName  string `form:"lastName"`
 	Email     string
@@ -25,11 +25,7 @@ func HandleProfileShow(kit *kit.Kit) error {
 	auth := kit.Auth().(Auth)
 
 	var user User
-	err := db.Query.NewSelect().
-		Model(&user).
-		Where("id = ?", auth.UserID).
-		Scan(kit.Request.Context())
-	if err != nil {
+	if err := db.Get().First(&user, auth.UserID).Error; err != nil {
 		return err
 	}
 
@@ -54,12 +50,12 @@ func HandleProfileUpdate(kit *kit.Kit) error {
 	if auth.UserID != values.ID {
 		return fmt.Errorf("unauthorized request for profile %d", values.ID)
 	}
-	_, err := db.Query.NewUpdate().
-		Model((*User)(nil)).
-		Set("first_name = ?", values.FirstName).
-		Set("last_name = ?", values.LastName).
+	err := db.Get().Model(&User{}).
 		Where("id = ?", auth.UserID).
-		Exec(kit.Request.Context())
+		Updates(&User{
+			FirstName: values.FirstName,
+			LastName:  values.LastName,
+		}).Error
 	if err != nil {
 		return err
 	}
