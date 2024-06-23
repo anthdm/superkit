@@ -1,12 +1,33 @@
 package components
 
+type Route struct {
+	Href  string
+	Title string
+}
+
+var routes = []Route{
+	{
+		Title: "home",
+		Href:  "/",
+	},
+	{
+		Title: "components",
+		Href:  "/components",
+	},
+}
+
 templ Navigation() {
 	<nav class="border-b py-3">
-		<div class="container mx-auto flex justify-between">
+		<div class="container mx-auto flex justify-between" hx-boost="true">
 			<div class="text-lg text-foreground">
 				<a href="/" class="font-semibold uppercase">superkit <span class="text-sm">v0.1</span></a>
 			</div>
-			<div class="flex gap-4 items-center">
+			<div class="flex gap-8 items-center">
+				<ul class="flex gap-3">
+					for _, route := range routes {
+						<li><a href={ templ.URL(route.Href) }>{ route.Title }</a></li>
+					}
+				</ul>
 				<div>
 					@ThemeSwitcher()
 				</div>

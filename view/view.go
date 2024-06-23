@@ -42,3 +42,15 @@ func Auth(ctx context.Context) kit.Auth {
 func URL(ctx context.Context) *url.URL {
 	return getContextValue(ctx, middleware.RequestURLKey{}, &url.URL{})
 }
+
+// IFF returns a if cond else b. Super handy tool for working in views.
+//
+//	 // Will return a blue background if the URL is /users, a gray one
+//	 // otherwise.
+//		view.IFF(url == "/users", "bg-blue-500", "bg-gray-500")
+func IFF(cond bool, a, b string) string {
+	if cond {
+		return a
+	}
+	return b
+}

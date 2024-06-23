@@ -1,0 +1,142 @@
+package uicomponents
+
+import (
+	"AABBCCDD/app/views/layouts"
+
+	"github.com/anthdm/superkit/ui"
+	"github.com/anthdm/superkit/ui/button"
+	"github.com/anthdm/superkit/ui/card"
+	"github.com/anthdm/superkit/ui/table"
+	"github.com/anthdm/superkit/ui/input"
+)
+
+templ Index() {
+	@layouts.App() {
+		<div class="flex flex-col gap-10 mt-10 py-8">
+			<div>
+				<h1 class="text-2xl font-semibold">Buttons</h1>
+				<div class="border-b pt-2 mb-6"></div>
+				<div class="flex gap-4">
+					<button { button.Primary()... }>primary</button>
+					<button { button.Outline()... }>outline</button>
+					<button { button.Secondary()... }>secondary</button>
+					<button { button.Destructive()... }>destructive</button>
+				</div>
+			</div>
+			<div>
+				<h1 class="text-2xl font-semibold">Forms</h1>
+				<div class="border-b pt-2 mb-6"></div>
+				<form class="flex flex-col gap-4 w-full max-w-xs">
+					<div class="flex flex-col gap-2">
+						<label class="text-sm">Email</label>
+						<input name="email" type="email" placeholder="enter your email" { input.Input()... }/>
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm">First Name</label>
+						<input name="firstName" type="text" placeholder="first name" { input.Input()... }/>
+					</div>
+					<div class="flex flex-col gap-2">
+						<label class="text-sm">Last Name</label>
+						<input name="lastName" type="text" placeholder="last name" { input.Input()... }/>
+					</div>
+					<button type="button" { button.Primary(ui.Class("w-fit"))... }>submit</button>
+				</form>
+			</div>
+			<div>
+				<h1 class="text-2xl font-semibold">Card</h1>
+				<div class="border-b pt-2 mb-6"></div>
+				@card.Card(ui.Class("max-w-md")) {
+					@card.Header() {
+						<h1 class="text-xl">User registration</h1>
+						<h2 class="text-muted-foreground">Please register to get the latest updates</h2>
+					}
+					@card.Content() {
+						<form class="flex flex-col gap-4">
+							<div class="flex flex-col gap-1">
+								<label class="text-sm">Username</label>
+								<input { input.Input()... }/>
+							</div>
+							<div class="flex flex-col gap-1">
+								<label class="text-sm">Email</label>
+								<input { input.Input()... }/>
+							</div>
+						</form>
+					}
+					@card.Footer() {
+						<button { button.Primary()... }>Submit</button>
+					}
+				}
+			</div>
+			<div>
+				<h1 class="text-2xl font-semibold">Table</h1>
+				<div class="border-b pt-2 mb-6"></div>
+				<div class="max-w-4xl">
+					@table.Table() {
+						@table.Header(ui.Class("text-left")) {
+							<th { table.Th()... }>
+								<div class="flex items-center">
+									<input id="checkbox-id" type="checkbox" class="w-4 h-4 bg-transparent border-input rounded"/>
+								</div>
+							</th>
+							<th { table.Th()... }>id</th>
+							<th { table.Th()... }>email</th>
+							<th { table.Th()... }>first name</th>
+							<th { table.Th()... }>last name</th>
+							<th { table.Th(ui.Class("text-right"))... }>action</th>
+						}
+						@table.Body() {
+							<tr>
+								<td { table.Td()... }>
+									<div class="flex items-center">
+										<input id="checkbox-id" type="checkbox" class="w-4 h-4 bg-transparent border-input rounded"/>
+									</div>
+								</td>
+								<td { table.Td()... }>1</td>
+								<td { table.Td()... }>foo@foo.com</td>
+								<td { table.Td()... }>Anthony</td>
+								<td { table.Td()... }>GG</td>
+								<td { table.Td(ui.Class("text-right text-blue-500"))... }>view</td>
+							</tr>
+							<tr>
+								<td { table.Td()... }>
+									<div class="flex items-center">
+										<input id="checkbox-id" type="checkbox" class="w-4 h-4 bg-transparent border-input rounded"/>
+									</div>
+								</td>
+								<td { table.Td()... }>1</td>
+								<td { table.Td()... }>foo@foo.com</td>
+								<td { table.Td()... }>Anthony</td>
+								<td { table.Td()... }>GG</td>
+								<td { table.Td(ui.Class("text-right text-blue-500"))... }>view</td>
+							</tr>
+							<tr>
+								<td { table.Td()... }>
+									<div class="flex items-center">
+										<input id="checkbox-id" type="checkbox" class="w-4 h-4 bg-transparent border-input rounded"/>
+									</div>
+								</td>
+								<td { table.Td()... }>1</td>
+								<td { table.Td()... }>foo@foo.com</td>
+								<td { table.Td()... }>Anthony</td>
+								<td { table.Td()... }>GG</td>
+								<td { table.Td(ui.Class("text-right text-blue-500"))... }>view</td>
+							</tr>
+							<tr>
+								<td { table.Td()... }>
+									<div class="flex items-center">
+										<input id="checkbox-id" type="checkbox" class="w-4 h-4 bg-transparent border-input rounded"/>
+									</div>
+								</td>
+								<td { table.Td()... }>1</td>
+								<td { table.Td()... }>foo@foo.com</td>
+								<td { table.Td()... }>Anthony</td>
+								<td { table.Td()... }>GG</td>
+								<td { table.Td(ui.Class("text-right text-blue-500"))... }>view</td>
+							</tr>
+						}
+					}
+				</div>
+			</div>
+		</div>
+	}
+}

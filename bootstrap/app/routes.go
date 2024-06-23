@@ -43,6 +43,7 @@ func InitializeRoutes(router *chi.Mux) {
 
 		// Routes
 		app.Get("/", kit.Handler(handlers.HandleLandingIndex))
+		app.Get("/components", kit.Handler(handlers.HandleUIComponentsIndex))
 	})
 
 	// Authenticated routes
