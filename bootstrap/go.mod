@@ -7,7 +7,7 @@ go 1.22.4
 
 require (
 	github.com/a-h/templ v0.2.707
-	github.com/anthdm/superkit v0.0.0-20240622052611-30be5bb82e0d
+	github.com/anthdm/superkit v0.0.0-20240623141236-28df405fd0f3
 	github.com/go-chi/chi/v5 v5.0.14
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
