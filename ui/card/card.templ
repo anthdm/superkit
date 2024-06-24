@@ -1,0 +1,29 @@
+package card
+
+import "github.com/anthdm/superkit/ui"
+
+const cardBaseClass = "rounded-lg border bg-card text-card-foreground shadow-sm"
+
+templ Card(opts ...func(*templ.Attributes)) {
+	<div { ui.CreateAttrs(cardBaseClass, "", opts...)... }>
+		{ children... }
+	</div>
+}
+
+templ Header(opts ...func(*templ.Attributes)) {
+	<div { ui.CreateAttrs("p-6", "", opts...)... }>
+		{ children... }
+	</div>
+}
+
+templ Content(opts ...func(*templ.Attributes)) {
+	<div { ui.CreateAttrs("p-6 pt-0", "", opts...)... }>
+		{ children... }
+	</div>
+}
+
+templ Footer(opts ...func(*templ.Attributes)) {
+	<div { ui.CreateAttrs("p-6 pt-0", "", opts...)... }>
+		{ children... }
+	</div>
+}

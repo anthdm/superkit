@@ -7,6 +7,7 @@ import (
 
 const (
 	DriverSqlite3 = "sqlite3"
+	DriverMysql   = "mysql"
 )
 
 type Config struct {
@@ -17,7 +18,7 @@ type Config struct {
 	Password string
 }
 
-func New(cfg Config) (*sql.DB, error) {
+func NewSQL(cfg Config) (*sql.DB, error) {
 	switch cfg.Driver {
 	case DriverSqlite3:
 		name := cfg.Name

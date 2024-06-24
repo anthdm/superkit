@@ -13,6 +13,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 const (
@@ -40,12 +41,9 @@ func HandleLoginCreate(kit *kit.Kit) error {
 	}
 
 	var user User
-	err := db.Query.NewSelect().
-		Model(&user).
-		Where("user.email = ?", values.Email).
-		Scan(kit.Request.Context())
+	err := db.Get().Find(&user, "email = ?", values.Email).Error
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == gorm.ErrRecordNotFound {
 			errors.Add("credentials", "invalid credentials")
 			return kit.Render(LoginForm(values, errors))
 		}
@@ -59,7 +57,7 @@ func HandleLoginCreate(kit *kit.Kit) error {
 
 	skipVerify := kit.Getenv("SUPERKIT_AUTH_SKIP_VERIFY", "false")
 	if skipVerify != "true" {
-		if user.EmailVerifiedAt.Equal(time.Time{}) {
+		if !user.EmailVerifiedAt.Valid {
 			errors.Add("verified", "please verify your email")
 			return kit.Render(LoginForm(values, errors))
 		}
@@ -71,24 +69,17 @@ func HandleLoginCreate(kit *kit.Kit) error {
 		sessionExpiry = 48
 	}
 	session := Session{
-		UserID:      user.ID,
-		Token:       uuid.New().String(),
-		CreatedAt:   time.Now(),
-		LastLoginAt: time.Now(),
-		ExpiresAt:   time.Now().Add(time.Hour * time.Duration(sessionExpiry)),
+		UserID:    user.ID,
+		Token:     uuid.New().String(),
+		ExpiresAt: time.Now().Add(time.Hour * time.Duration(sessionExpiry)),
 	}
-	_, err = db.Query.NewInsert().
-		Model(&session).
-		Exec(kit.Request.Context())
-	if err != nil {
+	if err = db.Get().Create(&session).Error; err != nil {
 		return err
 	}
 
-	// TODO change this with kit.Getenv
 	sess := kit.GetSession(userSessionName)
 	sess.Values["sessionToken"] = session.Token
 	sess.Save(kit.Request, kit.Response)
-
 	redirectURL := kit.Getenv("SUPERKIT_AUTH_REDIRECT_AFTER_LOGIN", "/profile")
 
 	return kit.Redirect(http.StatusSeeOther, redirectURL)
@@ -100,10 +91,7 @@ func HandleLoginDelete(kit *kit.Kit) error {
 		sess.Values = map[any]any{}
 		sess.Save(kit.Request, kit.Response)
 	}()
-	_, err := db.Query.NewDelete().
-		Model((*Session)(nil)).
-		Where("token = ?", sess.Values["sessionToken"]).
-		Exec(kit.Request.Context())
+	err := db.Get().Delete(&Session{}, "token = ?", sess.Values["sessionToken"]).Error
 	if err != nil {
 		return err
 	}
@@ -121,7 +109,7 @@ func HandleEmailVerify(kit *kit.Kit) error {
 			return []byte(os.Getenv("SUPERKIT_SECRET")), nil
 		}, jwt.WithLeeway(5*time.Second))
 	if err != nil {
-		return err
+		return kit.Render(EmailVerificationError("invalid verification token"))
 	}
 	if !token.Valid {
 		return kit.Render(EmailVerificationError("invalid verification token"))
@@ -141,23 +129,18 @@ func HandleEmailVerify(kit *kit.Kit) error {
 	}
 
 	var user User
-	err = db.Query.NewSelect().
-		Model(&user).
-		Where("id = ?", userID).
-		Scan(kit.Request.Context())
+	err = db.Get().First(&user, userID).Error
 	if err != nil {
 		return err
 	}
 
-	if user.EmailVerifiedAt.After(time.Time{}) {
+	if user.EmailVerifiedAt.Time.After(time.Time{}) {
 		return kit.Render(EmailVerificationError("Email already verified"))
 	}
 
-	user.EmailVerifiedAt = time.Now()
-	_, err = db.Query.NewUpdate().
-		Model(&user).
-		WherePK().
-		Exec(kit.Request.Context())
+	now := sql.NullTime{Time: time.Now(), Valid: true}
+	user.EmailVerifiedAt = now
+	err = db.Get().Save(&user).Error
 	if err != nil {
 		return err
 	}
@@ -174,16 +157,14 @@ func AuthenticateUser(kit *kit.Kit) (kit.Auth, error) {
 	}
 
 	var session Session
-	err := db.Query.NewSelect().
-		Model(&session).
-		Relation("User").
-		Where("session.token = ? AND session.expires_at > ?", token, time.Now()).
-		Scan(kit.Request.Context())
-	if err != nil {
+	err := db.Get().
+		Preload("User").
+		Find(&session, "token = ? AND expires_at > ?", token, time.Now()).Error
+	if err != nil || session.ID == 0 {
 		return auth, nil
 	}
-	return Auth{
 
+	return Auth{
 		LoggedIn: true,
 		UserID:   session.User.ID,
 		Email:    session.User.Email,

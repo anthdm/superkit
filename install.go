@@ -31,20 +31,11 @@ func main() {
 
 	projectName := args[0]
 
-	// check if superkit folder already exists, if so, delete
-	_, err := os.Stat("superkit")
-	if !os.IsNotExist(err) {
-		fmt.Println("-- deleting superkit folder cause its already present")
-		if err := os.RemoveAll("superkit"); err != nil {
-			log.Fatal(err)
-		}
-	}
-
 	secret := generateSecret()
 
 	fmt.Println("-- setting up bootstrap")
 	fmt.Println("-- generating secure secret")
-	if err = gitdl.DownloadGit(
+  if err := gitdl.DownloadGit(
 		"anthdm/superkit",
 		"bootstrap",
 		projectName,

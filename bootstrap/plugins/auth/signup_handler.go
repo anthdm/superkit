@@ -63,19 +63,15 @@ func HandleResendVerificationCode(kit *kit.Kit) error {
 	}
 
 	var user User
-	err = db.Query.NewSelect().
-		Model(&user).
-		Where("id = ?", id).
-		Scan(kit.Request.Context())
-	if err != nil {
+	if err = db.Get().First(&user, id).Error; err != nil {
 		return kit.Text(http.StatusOK, "An unexpected error occured")
 	}
 
-	if user.EmailVerifiedAt.After(time.Time{}) {
+	if user.EmailVerifiedAt.Time.After(time.Time{}) {
 		return kit.Text(http.StatusOK, "Email already verified!")
 	}
 
-	token, err := createVerificationToken(id)
+	token, err := createVerificationToken(uint(id))
 	if err != nil {
 		return kit.Text(http.StatusOK, "An unexpected error occured")
 	}
@@ -90,7 +86,7 @@ func HandleResendVerificationCode(kit *kit.Kit) error {
 	return kit.Text(http.StatusOK, msg)
 }
 
-func createVerificationToken(userID int) (string, error) {
+func createVerificationToken(userID uint) (string, error) {
 	expiryStr := kit.Getenv("SUPERKIT_AUTH_EMAIL_VERIFICATION_EXPIRY_IN_HOURS", "1")
 	expiry, err := strconv.Atoi(expiryStr)
 	if err != nil {

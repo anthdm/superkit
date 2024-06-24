@@ -3,17 +3,14 @@ package event
 import (
 	"context"
 	"reflect"
-	"sync"
 	"testing"
 )
 
 func TestEventSubscribeEmit(t *testing.T) {
-	var (
-		expect = 1
-		wg     = sync.WaitGroup{}
-	)
-	wg.Add(1)
-	Subscribe("foo.bar", func(_ context.Context, event any) {
+	expect := 1
+	ctx, cancel := context.WithCancel(context.Background())
+	Subscribe("foo.a", func(_ context.Context, event any) {
+		defer cancel()
 		value, ok := event.(int)
 		if !ok {
 			t.Errorf("expected int got %v", reflect.TypeOf(event))
@@ -21,16 +18,15 @@ func TestEventSubscribeEmit(t *testing.T) {
 		if value != 1 {
 			t.Errorf("expected %d got %d", expect, value)
 		}
-		wg.Done()
 	})
-	Emit("foo.bar", expect)
-	wg.Wait()
+	Emit("foo.a", expect)
+	<-ctx.Done()
 }
 
 func TestUnsubscribe(t *testing.T) {
-	sub := Subscribe("foo.bar", func(_ context.Context, _ any) {})
+	sub := Subscribe("foo.b", func(_ context.Context, _ any) {})
 	Unsubscribe(sub)
-	if _, ok := stream.subs["foo.bar"]; ok {
+	if _, ok := stream.subs["foo.b"]; ok {
 		t.Errorf("expected topic foo.bar to be deleted")
 	}
 }

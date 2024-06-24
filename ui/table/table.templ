@@ -1,0 +1,54 @@
+package table
+
+import (
+	"github.com/anthdm/superkit/ui"
+)
+
+templ Table() {
+	<div class="flex flex-col border rounded-md">
+		<div class="overflow-x-auto">
+			<div class="inline-block min-w-full">
+				<div class="overflow-hidden">
+					<table class="min-w-full divide-y">
+						{ children... }
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+templ Header(opts ...func(*templ.Attributes)) {
+	<thead { ui.CreateAttrs("", "", opts...)... }>
+		<tr>
+			{ children... }
+		</tr>
+	</thead>
+}
+
+templ Body(opts ...func(*templ.Attributes)) {
+	<tbody { ui.CreateAttrs("divide-y", "", opts...)... }>
+		{ children... }
+	</tbody>
+}
+
+templ Footer(opts ...func(*templ.Attributes)) {
+	<tfoot>
+		<tr>
+			{ children... }
+		</tr>
+	</tfoot>
+}
+
+const (
+	thBaseClass = "px-5 py-3 text-xs font-medium uppercase"
+	tdBaseClass = "px-5 py-4 text-sm whitespace-nowrap"
+)
+
+func Td(opts ...func(*templ.Attributes)) templ.Attributes {
+	return ui.CreateAttrs(tdBaseClass, "", opts...)
+}
+
+func Th(opts ...func(*templ.Attributes)) templ.Attributes {
+	return ui.CreateAttrs(thBaseClass, "", opts...)
+}

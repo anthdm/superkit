@@ -5,9 +5,10 @@ create table if not exists sessions(
 	user_id integer not null references users,
 	ip_address text,
 	user_agent text,
-	expires_at timestamp with time zone not null,
-	last_login_at timestamp with time zone,
-	created_at timestamp with time zone not null
+	expires_at datetime not null, 
+	created_at datetime not null, 
+    updated_at datetime not null, 
+	deleted_at datetime 
 );
 
 -- +goose Down
