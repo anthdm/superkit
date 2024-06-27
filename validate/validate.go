@@ -31,37 +31,58 @@ func (e Errors) Get(field string) []string {
 	return e[field]
 }
 
-// Has returns true whether the given field has any errors.
-func (e Errors) Has(field string) bool {
-	return len(e[field]) > 0
+// the interface of any set of rules for a field. Eg: String().Min(5) -> this is a fieldValidator
+type fieldValidator interface {
+	Validate(val any) (errors []string, ok bool)
 }
 
 // Schema represents a validation schema.
-type Schema map[string][]RuleSet
+type Schema map[string]fieldValidator
 
-// Merge merges the two given schemas, returning a new Schema.
-func Merge(schema, other Schema) Schema {
+// Validate validates data based on the given Schema.
+func (s Schema) Validate(data any) (Errors, bool) {
+	errors := Errors{}
+	return validateSchema(data, s, errors)
+}
+func Validate(data any, fields Schema) (Errors, bool) {
+	errors := Errors{}
+	return validateSchema(data, fields, errors)
+}
+
+func validateSchema(data any, schema Schema, errors Errors) (Errors, bool) {
+	globalOk := true
+	ok := true
+	var fieldErrs []string
+
+	for fieldName, validator := range schema {
+		fieldName = string(unicode.ToUpper(rune(fieldName[0]))) + fieldName[1:]
+		fieldValue := getFieldValueByName(data, fieldName)
+		fieldName = string(unicode.ToLower([]rune(fieldName)[0])) + fieldName[1:]
+		fieldErrs, ok = validator.Validate(fieldValue)
+		if !ok {
+			errors[fieldName] = fieldErrs
+			globalOk = false
+		}
+
+	}
+
+	return errors, globalOk
+}
+
+// Merge merges the two given schemas returning a new Schema. In case of clashing second will take priority
+func Merge(first, second Schema, rest ...Schema) Schema {
 	newSchema := Schema{}
-	maps.Copy(newSchema, schema)
-	maps.Copy(newSchema, other)
+	maps.Copy(newSchema, first)
+	maps.Copy(newSchema, second)
+
+	for _, s := range rest {
+		maps.Copy(newSchema, s)
+	}
+
 	return newSchema
 }
 
-// Rules is a function that takes any amount of RuleSets
-func Rules(rules ...RuleSet) []RuleSet {
-	ruleSets := make([]RuleSet, len(rules))
-	for i := 0; i < len(ruleSets); i++ {
-		ruleSets[i] = rules[i]
-	}
-	return ruleSets
-}
-
-// Validate validates data based on the given Schema.
-func Validate(data any, fields Schema) (Errors, bool) {
-	errors := Errors{}
-	return validate(data, fields, errors)
-}
-
+// ! PARSE REQUESTS
 // Request parses an http.Request into data and validates it based
 // on the given schema.
 func Request(r *http.Request, data any, schema Schema) (Errors, bool) {
@@ -69,57 +90,55 @@ func Request(r *http.Request, data any, schema Schema) (Errors, bool) {
 	if err := parseRequest(r, data); err != nil {
 		errors["_error"] = []string{err.Error()}
 	}
-	return validate(data, schema, errors)
+	return validateSchema(data, schema, errors)
 }
 
-func validate(data any, schema Schema, errors Errors) (Errors, bool) {
-	ok := true
-	for fieldName, ruleSets := range schema {
-		// Uppercase the field name so we never check un-exported fields.
-		// But we need to watch out for member fields that are uppercased by
-		// the user. For example (URL, ID, ...)
-		if !isUppercase(fieldName) {
-			fieldName = string(unicode.ToUpper(rune(fieldName[0]))) + fieldName[1:]
+// TODO -> Parse requestQueryParams
+func RequestParams(r *http.Request, data any, schema Schema) (Errors, bool) {
+	errors := Errors{}
+	if err := parseRequestParams(r, data); err != nil {
+		errors["_error"] = []string{err.Error()}
+	}
+	return validateSchema(data, schema, errors)
+}
+
+func parseRequestParams(r *http.Request, v any) error {
+
+	params := r.URL.Query()
+	val := reflect.ValueOf(v).Elem()
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Type().Field(i)
+		paramTag := field.Tag.Get("param")
+		param := params[paramTag]
+
+		if len(param) == 0 {
+			continue
 		}
 
-		fieldValue := getFieldAndTagByName(data, fieldName)
-		for _, set := range ruleSets {
-			set.FieldValue = fieldValue
-			set.FieldName = fieldName
-			fieldName = string(unicode.ToLower([]rune(fieldName)[0])) + fieldName[1:]
-			if !set.ValidateFunc(set) {
-				ok = false
-				msg := set.MessageFunc(set)
-				if len(set.ErrorMessage) > 0 {
-					msg = set.ErrorMessage
+		fieldVal := val.Field(i)
+		t := fieldVal.Kind()
+		switch t {
+		case reflect.Slice:
+			for idx, v := range param {
+				if idx < fieldVal.Len() {
+					fieldVal.Index(idx).Set(reflect.ValueOf(v))
+				} else {
+					newElem := reflect.Append(fieldVal, reflect.ValueOf(v))
+					fieldVal.Set(newElem)
 				}
-				if _, ok := errors[fieldName]; !ok {
-					errors[fieldName] = []string{}
-				}
-				errors[fieldName] = append(errors[fieldName], msg)
+			}
+		default:
+			if err := parsePrimitive(&t, &fieldVal, param[0]); err != nil {
+				return err
 			}
 		}
 	}
-	return errors, ok
-}
-
-func getFieldAndTagByName(v any, name string) any {
-	val := reflect.ValueOf(v)
-	if val.Kind() == reflect.Ptr {
-		val = val.Elem()
-	}
-	if val.Kind() != reflect.Struct {
-		return nil
-	}
-	fieldVal := val.FieldByName(name)
-	if !fieldVal.IsValid() {
-		return nil
-	}
-	return fieldVal.Interface()
+	return nil
 }
 
 func parseRequest(r *http.Request, v any) error {
 	contentType := r.Header.Get("Content-Type")
+	// TODO support more content types
 	if contentType == "application/x-www-form-urlencoded" {
 		if err := r.ParseForm(); err != nil {
 			return fmt.Errorf("failed to parse form: %v", err)
@@ -135,44 +154,9 @@ func parseRequest(r *http.Request, v any) error {
 			}
 
 			fieldVal := val.Field(i)
-			switch fieldVal.Kind() {
-			case reflect.Bool:
-				// There are cases where frontend libraries use "on" as the bool value
-				// think about toggles. Hence, let's try this first.
-				if formValue == "on" {
-					fieldVal.SetBool(true)
-				} else if formValue == "off" {
-					fieldVal.SetBool(false)
-					return nil
-				} else {
-					boolVal, err := strconv.ParseBool(formValue)
-					if err != nil {
-						return fmt.Errorf("failed to parse bool: %v", err)
-					}
-					fieldVal.SetBool(boolVal)
-				}
-			case reflect.String:
-				fieldVal.SetString(formValue)
-			case reflect.Int, reflect.Int32, reflect.Int64:
-				intVal, err := strconv.Atoi(formValue)
-				if err != nil {
-					return fmt.Errorf("failed to parse int: %v", err)
-				}
-				fieldVal.SetInt(int64(intVal))
-			case reflect.Uint, reflect.Uint32, reflect.Uint64:
-				intVal, err := strconv.Atoi(formValue)
-				if err != nil {
-					return fmt.Errorf("failed to parse int: %v", err)
-				}
-				fieldVal.SetUint(uint64(intVal))
-			case reflect.Float64:
-				floatVal, err := strconv.ParseFloat(formValue, 64)
-				if err != nil {
-					return fmt.Errorf("failed to parse float: %v", err)
-				}
-				fieldVal.SetFloat(floatVal)
-			default:
-				return fmt.Errorf("unsupported kind %s", fieldVal.Kind())
+			typ := fieldVal.Kind()
+			if err := parsePrimitive(&typ, &fieldVal, formValue); err != nil {
+				return err
 			}
 		}
 
@@ -180,11 +164,56 @@ func parseRequest(r *http.Request, v any) error {
 	return nil
 }
 
-func isUppercase(s string) bool {
-	for _, ch := range s {
-		if !unicode.IsUpper(rune(ch)) {
-			return false
+func parsePrimitive(typ *reflect.Kind, refObj *reflect.Value, value string) error {
+	switch *typ {
+	case reflect.Bool:
+		// There are cases where frontend libraries use "on" as the bool value
+		// think about toggles. Hence, let's try this first.
+		if value == "on" {
+			refObj.SetBool(true)
+		} else if value == "off" {
+			refObj.SetBool(false)
+			return nil
+		} else {
+			boolVal, err := strconv.ParseBool(value)
+			if err != nil {
+				return fmt.Errorf("failed to parse bool: %v", err)
+			}
+			refObj.SetBool(boolVal)
 		}
+
+	case reflect.String:
+		refObj.SetString(value)
+	case reflect.Int:
+		intVal, err := strconv.Atoi(value)
+		if err != nil {
+			return fmt.Errorf("failed to parse int: %v", err)
+		}
+		refObj.SetInt(int64(intVal))
+	case reflect.Float64:
+		floatVal, err := strconv.ParseFloat(value, 64)
+		if err != nil {
+			return fmt.Errorf("failed to parse float: %v", err)
+		}
+		refObj.SetFloat(floatVal)
+	default:
+		return fmt.Errorf("unsupported kind %s", refObj.Kind())
 	}
-	return true
+
+	return nil
+}
+
+func getFieldValueByName(v any, name string) any {
+	val := reflect.ValueOf(v)
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem()
+	}
+	if val.Kind() != reflect.Struct {
+		return nil
+	}
+	fieldVal := val.FieldByName(name)
+	if !fieldVal.IsValid() {
+		return nil
+	}
+	return fieldVal.Interface()
 }
