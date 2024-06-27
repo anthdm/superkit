@@ -91,8 +91,6 @@ func (s *Scheduler) Start(ctx context.Context) {
 			case <-ctx.Done():
 			default:
 				s.mutex.Lock()
-				defer s.mutex.Unlock()
-
 				for s.numReady == 0 {
 					s.cv.Wait()
 				}
@@ -119,6 +117,7 @@ func (s *Scheduler) Start(ctx context.Context) {
 
 					return true
 				})
+				s.mutex.Unlock()
 			}
 		}
 	}()
