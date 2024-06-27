@@ -1,207 +1,129 @@
 package validate
 
 import (
-	"fmt"
 	"net/http"
-	"net/url"
 	"strings"
 	"testing"
-	"time"
 
+	p "github.com/anthdm/superkit/validate/primitives"
 	"github.com/stretchr/testify/assert"
 )
 
-var createdAt = time.Now()
+func TestRequest(t *testing.T) {
+	formData := "name=JohnDoe&email=john@doe.com&age=30&isMarried=true&lights=on&cash=10.5&swagger=doweird"
 
-var testSchema = Schema{
-	"createdAt": Rules(Time),
-	"startedAt": Rules(TimeBefore(time.Now())),
-	"deletedAt": Rules(TimeAfter(createdAt)),
-	"email":     Rules(Email),
-	"url":       Rules(URL),
-	"password": Rules(
-		ContainsSpecial,
-		ContainsUpper,
-		ContainsDigit,
-		Min(7),
-		Max(50),
-	),
-	"age":      Rules(GTE(18)),
-	"bet":      Rules(GT(0), LTE(10)),
-	"username": Rules(Required),
-}
-
-func TestValidateRequest(t *testing.T) {
-	var (
-		email        = "foo@bar.com"
-		password     = "superHunter123@"
-		firstName    = "Anthony"
-		website      = "http://foo.com"
-		randomNumber = 123
-		randomFloat  = 9.999
-	)
-	formValues := url.Values{}
-	formValues.Set("email", email)
-	formValues.Set("password", password)
-	formValues.Set("firstName", firstName)
-	formValues.Set("url", website)
-	formValues.Set("brandom", fmt.Sprint(randomNumber))
-	formValues.Set("arandom", fmt.Sprint(randomFloat))
-	encodedValues := formValues.Encode()
-
-	req, err := http.NewRequest("POST", "http://foo.com", strings.NewReader(encodedValues))
-	assert.Nil(t, err)
+	// Create a fake HTTP request with form data
+	req, err := http.NewRequest("POST", "/submit?foo=bar&bar=foo&foo=baz", strings.NewReader(formData))
+	if err != nil {
+		t.Fatalf("Error creating request: %v", err)
+	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	type User struct {
+		Email     string  `form:"email"`
+		Name      string  `form:"name"`
+		Age       int     `form:"age"`
+		IsMarried bool    `form:"isMarried"`
+		Lights    bool    `form:"lights"`
+		Cash      float64 `form:"cash"`
+		Swagger   string  `form:"swagger"`
+	}
+	schema := Schema{
+		"email":     String().Email(),
+		"name":      String().Min(3).Max(10),
+		"age":       Int().GT(18),
+		"isMarried": Bool().True(),
+		"lights":    Bool().True(),
+		"cash":      Float().GT(10.0),
+		"swagger": String().Refine("swagger", "should be doweird", func(rule p.Rule) bool {
+			return rule.FieldValue.(string) == "doweird"
+		}),
+	}
+	u := User{}
 
-	type SignupData struct {
-		Email                string  `form:"email"`
-		Password             string  `form:"password"`
-		FirstName            string  `form:"firstName"`
-		URL                  string  `form:"url"`
-		ARandomRenamedNumber int     `form:"brandom"`
-		ARandomRenamedFloat  float64 `form:"arandom"`
+	errs, ok := Request(req, &u, schema)
+
+	assert.Equal(t, "john@doe.com", u.Email)
+	assert.Equal(t, "JohnDoe", u.Name)
+	assert.Equal(t, 30, u.Age)
+	assert.True(t, u.IsMarried)
+	assert.True(t, u.Lights)
+	assert.Equal(t, 10.5, u.Cash)
+	assert.Equal(t, u.Swagger, "doweird")
+	assert.Empty(t, errs)
+	assert.True(t, ok)
+}
+
+func TestRequestParams(t *testing.T) {
+	formData := "name=JohnDoe&email=john@doe.com&age=30&age=20&isMarried=true&lights=on&cash=10.5&swagger=doweird&swagger=swagger"
+
+	// Create a fake HTTP request with form data
+	req, err := http.NewRequest("POST", "/submit?"+formData, nil)
+	if err != nil {
+		t.Fatalf("Error creating request: %v", err)
+	}
+
+	type User struct {
+		Email     string   `param:"email"`
+		Name      string   `param:"name"`
+		Age       int      `param:"age"`
+		IsMarried bool     `param:"isMarried"`
+		Lights    bool     `param:"lights"`
+		Cash      float64  `param:"cash"`
+		Swagger   []string `param:"swagger"`
 	}
 
 	schema := Schema{
-		"Email": Rules(Email),
-		"Password": Rules(
-			Required,
-			ContainsDigit,
-			ContainsUpper,
-			ContainsSpecial,
-			Min(7),
-		),
-		"FirstName":            Rules(Min(3), Max(50)),
-		"URL":                  Rules(URL),
-		"ARandomRenamedNumber": Rules(GT(100), LT(124)),
-		"ARandomRenamedFloat":  Rules(GT(9.0), LT(10.1)),
+		"email":     String().Email(),
+		"name":      String().Min(3).Max(10),
+		"age":       Int().GT(18),
+		"isMarried": Bool().True(),
+		"lights":    Bool().True(),
+		"cash":      Float().GT(10.0),
+		"swagger": Slice(
+			String().Min(1)).Min(2),
 	}
+	u := User{}
 
-	var data SignupData
-	errors, ok := Request(req, &data, schema)
+	errs, ok := RequestParams(req, &u, schema)
+
+	assert.Equal(t, "john@doe.com", u.Email)
+	assert.Equal(t, "JohnDoe", u.Name)
+	assert.Equal(t, 30, u.Age)
+	assert.True(t, u.IsMarried)
+	assert.True(t, u.Lights)
+	assert.Equal(t, 10.5, u.Cash)
+	assert.Equal(t, u.Swagger, []string{"doweird", "swagger"})
+	assert.Empty(t, errs)
 	assert.True(t, ok)
-	assert.Empty(t, errors)
-
-	assert.Equal(t, data.Email, email)
-	assert.Equal(t, data.Password, password)
-	assert.Equal(t, data.FirstName, firstName)
-	assert.Equal(t, data.URL, website)
-	assert.Equal(t, data.ARandomRenamedNumber, randomNumber)
-	assert.Equal(t, data.ARandomRenamedFloat, randomFloat)
 }
 
-func TestTime(t *testing.T) {
+func TestStringURL(t *testing.T) {
 	type Foo struct {
-		CreatedAt time.Time
+		Url string
 	}
 	foo := Foo{
-		CreatedAt: time.Now(),
+		Url: "not an url",
 	}
 	schema := Schema{
-		"createdAt": Rules(Time),
-	}
-	_, ok := Validate(foo, schema)
-	assert.True(t, ok)
-
-	foo.CreatedAt = time.Time{}
-	_, ok = Validate(foo, schema)
-	assert.False(t, ok)
-}
-
-func TestURL(t *testing.T) {
-	type Foo struct {
-		URL string `v:"URL"`
-	}
-	foo := Foo{
-		URL: "not an url",
-	}
-	schema := Schema{
-		"URL": Rules(URL),
+		"url": String().URL(),
 	}
 	errors, ok := Validate(foo, schema)
 	assert.False(t, ok)
-	assert.NotEmpty(t, errors)
+	assert.Len(t, errors["url"], 1)
 
-	validURLS := []string{
-		"http://google.com",
-		"http://www.google.com",
-		"https://www.google.com",
-		"https://www.google.com",
-		"www.google.com",
-		"https://book.com/sales",
-		"app.book.com",
-		"app.book.com/signup",
-	}
-
-	for _, url := range validURLS {
-		foo.URL = url
-		errors, ok = Validate(foo, schema)
-		assert.True(t, ok)
-		assert.Empty(t, errors)
-	}
-}
-
-func TestContainsUpper(t *testing.T) {
-	type Foo struct {
-		Password string
-	}
-	foo := Foo{"hunter"}
-	schema := Schema{
-		"Password": Rules(ContainsUpper),
-	}
-	errors, ok := Validate(foo, schema)
-	assert.False(t, ok)
-	assert.NotEmpty(t, errors)
-
-	foo.Password = "Hunter"
+	foo.Url = "https://www.user.com"
 	errors, ok = Validate(foo, schema)
 	assert.True(t, ok)
 	assert.Empty(t, errors)
 }
 
-func TestContainsDigit(t *testing.T) {
-	type Foo struct {
-		Password string
-	}
-	foo := Foo{"hunter"}
-	schema := Schema{
-		"Password": Rules(ContainsDigit),
-	}
-	errors, ok := Validate(foo, schema)
-	assert.False(t, ok)
-	assert.NotEmpty(t, errors)
-
-	foo.Password = "Hunter1"
-	errors, ok = Validate(foo, schema)
-	assert.True(t, ok)
-	assert.Empty(t, errors)
-}
-
-func TestContainsSpecial(t *testing.T) {
-	type Foo struct {
-		Password string
-	}
-	foo := Foo{"hunter"}
-	schema := Schema{
-		"Password": Rules(ContainsSpecial),
-	}
-	errors, ok := Validate(foo, schema)
-	assert.False(t, ok)
-	assert.NotEmpty(t, errors)
-
-	foo.Password = "Hunter@"
-	errors, ok = Validate(foo, schema)
-	assert.True(t, ok)
-	assert.Empty(t, errors)
-}
-
-func TestRuleIn(t *testing.T) {
+func TestStringIn(t *testing.T) {
 	type Foo struct {
 		Currency string
 	}
 	foo := Foo{"eur"}
 	schema := Schema{
-		"currency": Rules(In([]string{"eur", "usd", "chz"})),
+		"currency": String().In([]string{"eur", "usd", "chz"}),
 	}
 	errors, ok := Validate(foo, schema)
 	assert.True(t, ok)
@@ -218,9 +140,9 @@ func TestValidate(t *testing.T) {
 		Username string
 	}
 	schema := Schema{
-		"email": Rules(Email),
+		"email": String().Email(),
 		// Test both lower and uppercase
-		"Username": Rules(Min(3), Max(10)),
+		"username": String().Min(3).Max(10),
 	}
 	user := User{
 		Email:    "foo@bar.com",
@@ -229,23 +151,44 @@ func TestValidate(t *testing.T) {
 	errors, ok := Validate(user, schema)
 	assert.True(t, ok)
 	assert.Empty(t, errors)
+	assert.Empty(t, errors)
 }
 
-func TestMergeSchemas(t *testing.T) {
-	expected := Schema{
-		"Name":      Rules(),
-		"Email":     Rules(),
-		"FirstName": Rules(),
-		"LastName":  Rules(),
+func TestOptional(t *testing.T) {
+	type User struct {
+		Email    string
+		Username string
 	}
-	a := Schema{
-		"Name":  Rules(),
-		"Email": Rules(),
+	schema := Schema{
+		"email":    String().Email(),
+		"username": String().Min(3).Max(10).Optional(),
 	}
-	b := Schema{
-		"FirstName": Rules(),
-		"LastName":  Rules(),
+	user := User{
+		Email: "pedro@gmail.com",
 	}
-	c := Merge(a, b)
-	assert.Equal(t, expected, c)
+
+	errors, ok := Validate(user, schema)
+	assert.True(t, ok)
+	assert.Empty(t, errors)
+	assert.Empty(t, errors)
+}
+
+func TestEmpty(t *testing.T) {
+	type User struct {
+		Email    string
+		Username string
+	}
+	schema := Schema{
+		"email":    String(),
+		"username": String(),
+	}
+	user := User{
+		Email:    "",
+		Username: "",
+	}
+
+	errors, ok := Validate(user, schema)
+	assert.True(t, ok)
+	assert.Empty(t, errors)
+	assert.Empty(t, errors)
 }
