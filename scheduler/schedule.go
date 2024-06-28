@@ -41,47 +41,10 @@ type schedule struct {
 func getDurationTillNextProc(s schedule) time.Duration {
 	currentDate := time.Now()
 
-	var nextMin int
-	if s.min.typ == wildcard {
-		nextMin = currentDate.Minute() + 1
-	} else if s.min.typ == step {
-		stepped := min(currentDate.Minute()+s.min.val, minMax)
-		nextMin = stepped - (stepped % s.min.val)
-	} else {
-		nextMin = s.min.val
-	}
-
-	var nextHour int
-	if s.hour.typ == wildcard {
-		nextHour = currentDate.Hour()
-		if s.min.typ == concrete && nextMin < currentDate.Minute() {
-			nextHour += 1
-		}
-	} else if s.hour.typ == step {
-
-	} else {
-		nextHour = s.hour.val
-	}
-
-	var nextDay int
-	if s.day.typ == wildcard {
-		nextDay = currentDate.Day()
-		if nextHour < currentDate.Hour() {
-			nextDay += 1
-		}
-	} else {
-		nextDay = s.day.val
-	}
-
-	var nextMonth int
-	if s.month.typ == wildcard {
-		nextMonth = int(currentDate.Month())
-		if nextDay < currentDate.Day() {
-			nextMonth += 1
-		}
-	} else {
-		nextMonth = s.month.val
-	}
+	nextMin := calcNextTime(s.min, currentDate.Minute(), minMax, 1)
+	nextHour := calcNextTime(s.hour, currentDate.Hour(), hourMax, 0)
+	nextDay := calcNextTime(s.day, currentDate.Day(), dayMax, 0)
+	nextMonth := calcNextTime(s.month, int(currentDate.Month()), monthMax, 0)
 
 	var nextYear int = currentDate.Year()
 	if nextMonth < int(currentDate.Month()) {
@@ -90,6 +53,23 @@ func getDurationTillNextProc(s schedule) time.Duration {
 
 	nextDate := time.Date(nextYear, time.Month(nextMonth), nextDay, nextHour, nextMin, 0, 0, currentDate.Location())
 	return nextDate.Sub(currentDate)
+}
+
+func calcNextTime(t timing, currentTime, maxVal, wildCardIncrement int) int {
+	if t.typ == wildcard {
+		return currentTime + wildCardIncrement
+	}
+
+	if t.typ == step {
+		stepped := min(currentTime+t.val, maxVal)
+		return stepped - (stepped % min(t.val, maxVal))
+	}
+
+	if t.val < currentTime {
+		return t.val + minMax
+	}
+
+	return t.val
 }
 
 func validateSchedule(schedule string) (bool, error) {
