@@ -3,6 +3,7 @@ package view
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/anthdm/superkit/kit"
@@ -40,5 +41,13 @@ func Auth(ctx context.Context) kit.Auth {
 //
 //	view.URL(ctx).Path // => ex. /login
 func URL(ctx context.Context) *url.URL {
-	return getContextValue(ctx, middleware.RequestURLKey{}, &url.URL{})
+	return getContextValue(ctx, middleware.RequestKey{}, &http.Request{}).URL
+}
+
+// Request is a view helper that returns the current http request.
+// The request can be accessed with:
+//
+//	view.Request(ctx)
+func Request(ctx context.Context) *http.Request {
+	return getContextValue(ctx, middleware.RequestKey{}, &http.Request{})
 }

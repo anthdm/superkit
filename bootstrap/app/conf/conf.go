@@ -1,3 +1,3 @@
 package conf
 
-// Application config
+// Here goes your application config

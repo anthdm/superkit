@@ -1,7 +1,5 @@
-github.com/a-h/templ v0.2.707 h1:T1Gkd2ugbRglZ9rYw/VBchWOSZVKmetDbBkm4YubM7U=
-github.com/a-h/templ v0.2.707/go.mod h1:5cqsugkq9IerRNucNsI4DEamdHPsoGMQy99DzydLhM8=
-github.com/anthdm/superkit v0.0.0-20240622052611-30be5bb82e0d h1:T0qegCdKTBwjk28Rcq81V1vYZl2grFjG9NWhPqIbRm0=
-github.com/anthdm/superkit v0.0.0-20240622052611-30be5bb82e0d/go.mod h1:j8+yKABdHVnQ9UqxiE/trbu8CnJuU+gNqlMvfGD6nq4=
+github.com/a-h/templ v0.2.731 h1:yiv4C7whSUsa36y65O06DPr/U/j3+WGB0RmvLOoVFXc=
+github.com/a-h/templ v0.2.731/go.mod h1:IejA/ecDD0ul0dCvgCwp9t7bUZXVpGClEAdsqZQigi8=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/go-chi/chi/v5 v5.0.14 h1:PyEwo2Vudraa0x/Wl6eDRRW2NXBvekgfxyydcM0WGE0=

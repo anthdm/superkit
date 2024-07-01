@@ -5,11 +5,14 @@ import (
 	"net/http"
 )
 
-type RequestURLKey struct{}
+type (
+	RequestKey         struct{}
+	ResponseHeadersKey struct{}
+)
 
-func WithRequestURL(next http.Handler) http.Handler {
+func WithRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), RequestURLKey{}, r.URL)
+		ctx := context.WithValue(r.Context(), RequestKey{}, r)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

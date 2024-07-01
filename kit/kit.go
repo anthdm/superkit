@@ -4,12 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"log/slog"
 	"net/http"
 	"os"
 
 	"github.com/a-h/templ"
 	"github.com/gorilla/sessions"
+	"github.com/joho/godotenv"
 )
 
 var store *sessions.CookieStore
@@ -166,7 +168,10 @@ func Env() string {
 // initialize the store here so the environment variables are
 // already initialized. Calling NewCookieStore() from outside of
 // a function scope won't work.
-func init() {
+func Setup() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
+	}
 	appSecret := os.Getenv("SUPERKIT_SECRET")
 	if len(appSecret) < 32 {
 		// For security reasons we are calling os.Exit(1) here so Go's panic recover won't

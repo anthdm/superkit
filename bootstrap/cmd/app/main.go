@@ -14,10 +14,7 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
-	}
-
+	kit.Setup()
 	router := chi.NewMux()
 
 	app.InitializeMiddleware(router)
