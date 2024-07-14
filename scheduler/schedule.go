@@ -39,20 +39,69 @@ type schedule struct {
 }
 
 func getDurationTillNextProc(s schedule) time.Duration {
-	currentDate := time.Now()
+	currentTime := time.Now()
 
-	nextMin := calcNextTime(s.min, currentDate.Minute(), minMax, 1)
-	nextHour := calcNextTime(s.hour, currentDate.Hour(), hourMax, 0)
-	nextDay := calcNextTime(s.day, currentDate.Day(), dayMax, 0)
-	nextMonth := calcNextTime(s.month, int(currentDate.Month()), monthMax, 0)
+	nextMonth := calcNextTime(s.month, int(currentTime.Month()), monthMax, 0)
 
-	var nextYear int = currentDate.Year()
-	if nextMonth < int(currentDate.Month()) {
-		nextYear += 1
+	if nextMonth > int(currentTime.Month()) {
+		nextDate := time.Date(
+			currentTime.Year(),
+			time.Month(nextMonth),
+			0,
+			0,
+			0,
+			0,
+			0,
+			currentTime.Location(),
+		)
+		return nextDate.Sub(currentTime)
 	}
 
-	nextDate := time.Date(nextYear, time.Month(nextMonth), nextDay, nextHour, nextMin, 0, 0, currentDate.Location())
-	return nextDate.Sub(currentDate)
+	nextDay := calcNextTime(s.day, currentTime.Day(), dayMax, 0)
+
+	if nextDay > currentTime.Day() {
+		nextDate := time.Date(
+			currentTime.Year(),
+			time.Month(nextMonth),
+			nextDay,
+			0,
+			0,
+			0,
+			0,
+			currentTime.Location(),
+		)
+		return nextDate.Sub(currentTime)
+	}
+
+	nextHour := calcNextTime(s.hour, currentTime.Hour(), hourMax, 0)
+
+	if nextHour > currentTime.Hour() {
+		nextDate := time.Date(
+			currentTime.Year(),
+			time.Month(nextMonth),
+			nextDay,
+			nextHour,
+			0,
+			0,
+			0,
+			currentTime.Location(),
+		)
+		return nextDate.Sub(currentTime)
+	}
+
+	nextMinute := calcNextTime(s.min, currentTime.Minute(), minMax, 1)
+
+	nextDate := time.Date(
+		currentTime.Year(),
+		time.Month(nextMonth),
+		nextDay,
+		nextHour,
+		nextMinute,
+		0,
+		0,
+		currentTime.Location(),
+	)
+	return nextDate.Sub(currentTime)
 }
 
 func calcNextTime(t timing, currentTime, maxVal, wildCardIncrement int) int {
@@ -124,5 +173,4 @@ func convCronTiming(timeOption string, minVal, maxVal int) timing {
 		typ: typ,
 		val: max(min(val, maxVal), minVal),
 	}
-
 }
